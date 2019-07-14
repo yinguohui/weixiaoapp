@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#D81B60</color>
+
+    <color name="white">#FFFFFFFF</color>
+    <color name="main_bottom_text_normal">#ff847d7b</color>
+    <color name="main_bottom_text_select">#ff333333</color>
+    <color name="main_bottom_bg">#11000000</color>
+    <color name="main_content_bg">#10000000</color>
+    <color name="essence_tab_bg">#12000000</color>
+    <color name="essence_tab_text_color_normal">#ff847d7b</color>
+    <color name="essence_tab_text_color_press">#FF4081</color>
+
+    <color name="colorBig">#333333</color>
+    <color name="colorSmall">#666666</color>
+    <color name="colorMid">#999999</color>
+    <color name="colorBlue">#1296db</color>
+    <color name="colorWhite">#ffffff</color>
+    <color name="colorBg">#eeeeee</color>
+    <color name="color_f6">#f6f6f6</color>
+
+    <color name="transparent">#00000000</color>
+    <color name="black">#000000</color>
+    <color name="blue">#7D7DFF</color>
+    <color name="color_fa">#fafafa</color>
+    <color name="divider">#B6B6B6</color>
+    <color name="color_c51">#f94c51</color>
+    <color name="color_green">#43c117</color>
+    <!--登陆-->
+    <color name="login_text_color">@android:color/white</color>
+    <color name="login_button_color_normal">#DE6262</color>
+    <color name="login_button_color_press">#DD5858</color>
+
+
+    <color name="colF4F4F4">#F4F4F4</color>
+    <color name="colFFF2EF">#FFF2EF</color>
+    <color name="col666666">#666666</color>
+</resources>

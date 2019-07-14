@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">WeiXiao</string>
+    <string name="main_essence_title">影控首页</string>
+    <string name="main_text">首页</string>
+    <string name="mine_text">我</string>
+    <string name="discuss_text">讨论</string>
+</resources>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/colorPrimary">
+
+        <ImageView
+            android:id="@+id/iv_back"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:padding="13dp"
+            android:src="@drawable/icon_back" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/iv_back"
+            android:textColor="@color/colorWhite"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:text="买卖市场"/>
+    </RelativeLayout>
+    <LinearLayout
+        android:id="@+id/ll_functions1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/ll_sell_sell"
+            android:layout_width="70dp"
+            android:layout_height="120dp"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_marginRight="20dp">
+
+            <ImageView
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:src="@drawable/icon_sell_sell"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:text="物品出售"/>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/ll_sell_buy"
+            android:layout_width="70dp"
+            android:layout_height="120dp"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_marginRight="20dp">
+
+            <ImageView
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_gravity="center"
+                android:src="@drawable/icon_sell_buy"
+                android:scaleType="centerCrop"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:textColor="@color/black"
+                android:layout_marginTop="20dp"
+                android:textSize="14sp"
+                android:text="校园集市"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="70dp"
+            android:layout_height="120dp"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_marginRight="20dp">
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
