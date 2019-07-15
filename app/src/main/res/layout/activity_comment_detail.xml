@@ -67,7 +67,7 @@
                         android:layout_marginTop="12dp"
                         android:layout_marginBottom="10dp"
                         android:gravity="center_vertical">
-                        <com.example.ygh.app.pro.essence.view.views.CircleNetworkImageImage
+                        <com.xihua.wx.weixiao.utils.image.CircleNetworkImageImage
                             android:id="@+id/detail_page_userLogo"
                             android:layout_width="48dp"
                             android:layout_height="48dp"
@@ -133,7 +133,7 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical">
 
-                    <com.example.ygh.app.pro.essence.view.views.CommentExpandableListView
+                    <com.xihua.wx.weixiao.achieve.main.publish.views.CommentExpandableListView
                         android:id="@+id/detail_page_lv_comment"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"

@@ -1,6 +1,7 @@
 package com.xihua.wx.weixiao.achieve.main.publish.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,8 @@ import com.jaeger.ninegridimageview.NineGridImageView;
 import com.jaeger.ninegridimageview.NineGridImageViewAdapter;
 import com.jcodecraeer.xrecyclerview.XRecyclerView;
 import com.xihua.wx.weixiao.R;
+import com.xihua.wx.weixiao.achieve.main.publish.activity.ChangYanDetailActivity;
+import com.xihua.wx.weixiao.achieve.main.publish.activity.PublishContentActivity;
 import com.xihua.wx.weixiao.bean.ChangYanResponseBean;
 import com.xihua.wx.weixiao.bean.UserInfoBean;
 import com.xihua.wx.weixiao.utils.VolleyUtils;
@@ -63,6 +66,12 @@ public class ChangYanAdapter extends XRecyclerView.Adapter implements View.OnCli
             ((ViewHolder) holder).iv_video.setImagesData(stringList);
             ((ViewHolder) holder).tv_like.setText(bean.getChangyanLike()+"");
             ((ViewHolder) holder).tv_comment.setText(bean.getChangYanComment()+"");
+            ((ViewHolder) holder).tv_comment.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    context.startActivity(new Intent(context,ChangYanDetailActivity.class));
+                }
+            });
         }
     }
 

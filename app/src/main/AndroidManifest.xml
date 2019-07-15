@@ -45,6 +45,7 @@
         <activity android:name=".achieve.main.publish.activity.AboutMeActivity"></activity>
         <activity android:name=".achieve.main.publish.activity.PublishContentActivity"></activity>
         <activity android:name=".achieve.main.donation.activity.DonationActivity"></activity>
+        <activity android:name=".achieve.main.publish.activity.ChangYanDetailActivity"></activity>
     </application>
 
 </manifest>

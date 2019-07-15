@@ -2,81 +2,63 @@ package com.xihua.wx.weixiao.bean;
 
 public class ReplyDetailBean {
 
-//    "nickName": "沐風",
-//    "userLogo": "http://ucardstorevideo.b0.upaiyun.com/userLogo/9fa13ec6-dddd-46cb-9df0-4bbb32d83fc1.png",
-//    "id": 40,
-//    "commentId": "42",
-//    "conten": "时间总是在不经意中擦肩而过,不留一点痕迹.",
-//    "status": "01",
-//    "createDate": "一个小时前"
-    private String rereviewId;
-    private String rereviewContent;
-    private int rereviewStatus;
-    private String rereviewCreate;
-    private String reviewId;
+    private Integer reviewId;
+    private String reviewContent;
+    private Integer reviewStatus;
+    private Long reviewCreateTime;
+    private String reviewUserName;
+    private String reviewUserImg;
 
-
-    private String userName;
-    private String userImg;
-
-    public String getReviewId() {
+    public Integer getReviewId() {
         return reviewId;
     }
 
-    public void setReviewId(String reviewId) {
+    public void setReviewId(Integer reviewId) {
         this.reviewId = reviewId;
     }
 
-    public ReplyDetailBean(String userName, String rereviewContent) {
-        this.userName = userName;
-        this.rereviewContent = rereviewContent;
+    public ReplyDetailBean(String reviewUserName, String reviewContent) {
+        this.reviewUserName = reviewUserName;
+        this.reviewContent = reviewContent;
     }
 
-    public String getRereviewId() {
-        return rereviewId;
+    public String getReviewContent() {
+        return reviewContent;
     }
 
-    public void setRereviewId(String rereviewId) {
-        this.rereviewId = rereviewId;
+    public void setReviewContent(String reviewContent) {
+        this.reviewContent = reviewContent;
     }
 
-    public String getRereviewContent() {
-        return rereviewContent;
+    public Integer getReviewStatus() {
+        return reviewStatus;
     }
 
-    public void setRereviewContent(String rereviewContent) {
-        this.rereviewContent = rereviewContent;
+    public void setReviewStatus(Integer reviewStatus) {
+        this.reviewStatus = reviewStatus;
     }
 
-    public int getRereviewStatus() {
-        return rereviewStatus;
+    public Long getReviewCreateTime() {
+        return reviewCreateTime;
     }
 
-    public void setRereviewStatus(int rereviewStatus) {
-        this.rereviewStatus = rereviewStatus;
+    public void setReviewCreateTime(Long reviewCreateTime) {
+        this.reviewCreateTime = reviewCreateTime;
     }
 
-    public String getRereviewCreate() {
-        return rereviewCreate;
+    public String getReviewUserName() {
+        return reviewUserName;
     }
 
-    public void setRereviewCreate(String rereviewCreate) {
-        this.rereviewCreate = rereviewCreate;
+    public void setReviewUserName(String reviewUserName) {
+        this.reviewUserName = reviewUserName;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getReviewUserImg() {
+        return reviewUserImg;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public String getUserImg() {
-        return userImg;
-    }
-
-    public void setUserImg(String userImg) {
-        this.userImg = userImg;
+    public void setReviewUserImg(String reviewUserImg) {
+        this.reviewUserImg = reviewUserImg;
     }
 }

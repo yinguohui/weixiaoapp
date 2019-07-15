@@ -24,43 +24,39 @@ import java.util.List;
 //评论和回复的适配器
 public class CommentExpandAdapter extends BaseExpandableListAdapter {
     private static final String TAG = "CommentExpandAdapter";
-    private List<CommentDetailBean> commentBeanList;
-    private List<ReplyDetailBean> replyBeanList;
+    private List<ReplyDetailBean> replyDetailBeans;
     private Context context;
     boolean isLike = false;
     private int pageIndex = 1;
 
-    public CommentExpandAdapter(Context context, List<CommentDetailBean> commentBeanList) {
+    public CommentExpandAdapter(Context context, List<ReplyDetailBean> replyDetailBeans) {
         this.context = context;
-        this.commentBeanList = commentBeanList;
+        this.replyDetailBeans = replyDetailBeans;
     }
 
     @Override
     public int getGroupCount() {
-        return commentBeanList.size();
+        return replyDetailBeans.size();
     }
 
 
     //得到回复条数
     @Override
     public int getChildrenCount(int i) {
-        if(commentBeanList.get(i).getReplyList() == null){
-            return 0;
-        }else {
-            return commentBeanList.get(i).getReplyList().size()>0 ? commentBeanList.get(i).getReplyList().size():0;
-        }
+        return 0;
 
     }
 
     //得到某一个评论
     @Override
     public Object getGroup(int i) {
-        return commentBeanList.get(i);
+        return replyDetailBeans.get(i);
     }
 
     @Override
     public Object getChild(int i, int i1) {
-        return commentBeanList.get(i).getReplyList().get(i1);
+        return null;
+        // commentBeanList.get(i).getReplyList().get(i1);
     }
 
     @Override
@@ -89,10 +85,10 @@ public class CommentExpandAdapter extends BaseExpandableListAdapter {
         }else {
             groupHolder = (GroupHolder) convertView.getTag();
         }
-        VolleyUtils.loadImage(context,groupHolder.logo,commentBeanList.get(groupPosition).getUserImg());
-        groupHolder.tv_name.setText(commentBeanList.get(groupPosition).getUserName());
-        groupHolder.tv_time.setText(commentBeanList.get(groupPosition).getReviewCreate());
-        groupHolder.tv_content.setText(commentBeanList.get(groupPosition).getReviewContent());
+        VolleyUtils.loadImage(context,groupHolder.logo,replyDetailBeans.get(groupPosition).getReviewUserImg());
+        groupHolder.tv_name.setText(replyDetailBeans.get(groupPosition).getReviewUserName());
+        groupHolder.tv_time.setText(replyDetailBeans.get(groupPosition).getReviewCreateTime()+"");
+        groupHolder.tv_content.setText(replyDetailBeans.get(groupPosition).getReviewContent());
         groupHolder.iv_like.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -111,24 +107,24 @@ public class CommentExpandAdapter extends BaseExpandableListAdapter {
    //加载回复的信息
     @Override
     public View getChildView(final int groupPosition, int childPosition, boolean b, View convertView, ViewGroup viewGroup) {
-        final ChildHolder childHolder;
-        if(convertView == null){
-            convertView = LayoutInflater.from(context).inflate(R.layout.comment_reply_item_layout,viewGroup, false);
-            childHolder = new ChildHolder(convertView);
-            convertView.setTag(childHolder);
-        }
-        else {
-            childHolder = (ChildHolder) convertView.getTag();
-        }
-
-        String replyUser = commentBeanList.get(groupPosition).getReplyList().get(childPosition).getUserName();
-        if(!TextUtils.isEmpty(replyUser)){
-            childHolder.tv_name.setText(replyUser + ":");
-        }else {
-            childHolder.tv_name.setText("无名"+":");
-        }
-        Log.e(TAG,replyUser);
-        childHolder.tv_content.setText(commentBeanList.get(groupPosition).getReplyList().get(childPosition).getRereviewContent());
+//        final ChildHolder childHolder;
+//        if(convertView == null){
+//            convertView = LayoutInflater.from(context).inflate(R.layout.comment_reply_item_layout,viewGroup, false);
+//            childHolder = new ChildHolder(convertView);
+//            convertView.setTag(childHolder);
+//        }
+//        else {
+//            childHolder = (ChildHolder) convertView.getTag();
+//        }
+//
+//        String replyUser = commentBeanList.get(groupPosition).getReplyList().get(childPosition).getUserName();
+//        if(!TextUtils.isEmpty(replyUser)){
+//            childHolder.tv_name.setText(replyUser + ":");
+//        }else {
+//            childHolder.tv_name.setText("无名"+":");
+//        }
+//        Log.e(TAG,replyUser);
+//        childHolder.tv_content.setText(commentBeanList.get(groupPosition).getReplyList().get(childPosition).getRereviewContent());
 
         return convertView;
     }
@@ -144,9 +140,9 @@ public class CommentExpandAdapter extends BaseExpandableListAdapter {
         private ImageView iv_like;
         public GroupHolder(View view) {
             logo = view.findViewById(R.id.comment_item_logo);
-            tv_content = (TextView) view.findViewById(R.id.comment_item_content);
-            tv_name = (TextView) view.findViewById(R.id.comment_item_userName);
-            tv_time = (TextView) view.findViewById(R.id.comment_item_time);
+            tv_content =  view.findViewById(R.id.comment_item_content);
+            tv_name =  view.findViewById(R.id.comment_item_userName);
+            tv_time =  view.findViewById(R.id.comment_item_time);
             iv_like = (ImageView) view.findViewById(R.id.comment_item_like);
         }
     }
@@ -154,20 +150,20 @@ public class CommentExpandAdapter extends BaseExpandableListAdapter {
     private class ChildHolder{
         private TextView tv_name, tv_content;
         public ChildHolder(View view) {
-            tv_name = (TextView) view.findViewById(R.id.reply_item_user);
-            tv_content = (TextView) view.findViewById(R.id.reply_item_content);
+            tv_name =  view.findViewById(R.id.reply_item_user);
+            tv_content =  view.findViewById(R.id.reply_item_content);
         }
     }
 
 
     /**
      * func:评论成功后插入一条数据
-     * @param commentDetailBean 新的评论数据
+     * @param replyDetailBean 新的评论数据
      */
-    public void addTheCommentData(CommentDetailBean commentDetailBean){
-        if(commentDetailBean!=null){
+    public void addTheCommentData(ReplyDetailBean replyDetailBean){
+        if(replyDetailBean!=null){
 
-            commentBeanList.add(commentDetailBean);
+            replyDetailBeans.add(replyDetailBean);
             notifyDataSetChanged();
         }else {
             throw new IllegalArgumentException("评论数据为空!");
@@ -180,20 +176,20 @@ public class CommentExpandAdapter extends BaseExpandableListAdapter {
      * @param replyDetailBean 新的回复数据
      */
     public void addTheReplyData(ReplyDetailBean replyDetailBean, int groupPosition){
-        if(replyDetailBean!=null){
-            Log.e(TAG, "addTheReplyData: >>>>该刷新回复列表了:"+replyDetailBean.toString() );
-            if(commentBeanList.get(groupPosition).getReplyList() != null ){
-                commentBeanList.get(groupPosition).getReplyList().add(replyDetailBean);
-            }else {
-                List<ReplyDetailBean> replyList = new ArrayList<>();
-                replyList.add(replyDetailBean);
-                commentBeanList.get(groupPosition).setReplyList(replyList);
-            }
-
-          //  notifyDataSetChanged();
-        }else {
-            throw new IllegalArgumentException("回复数据为空!");
-        }
+//        if(replyDetailBean!=null){
+//            Log.e(TAG, "addTheReplyData: >>>>该刷新回复列表了:"+replyDetailBean.toString() );
+//            if(commentBeanList.get(groupPosition).getReplyList() != null ){
+//                commentBeanList.get(groupPosition).getReplyList().add(replyDetailBean);
+//            }else {
+//                List<ReplyDetailBean> replyList = new ArrayList<>();
+//                replyList.add(replyDetailBean);
+//                commentBeanList.get(groupPosition).setReplyList(replyList);
+//            }
+//
+//          //  notifyDataSetChanged();
+//        }else {
+//            throw new IllegalArgumentException("回复数据为空!");
+//        }
 
     }
 
@@ -204,15 +200,15 @@ public class CommentExpandAdapter extends BaseExpandableListAdapter {
      * @param groupPosition 当前的评论
      */
     private void addReplyList(List<ReplyDetailBean> replyBeanList, int groupPosition){
-        if(commentBeanList.get(groupPosition).getReplyList() != null ){
-            commentBeanList.get(groupPosition).getReplyList().clear();
-            commentBeanList.get(groupPosition).getReplyList().addAll(replyBeanList);
-        }else {
-
-            commentBeanList.get(groupPosition).setReplyList(replyBeanList);
-        }
-
-        notifyDataSetChanged();
+//        if(commentBeanList.get(groupPosition).getReplyList() != null ){
+//            commentBeanList.get(groupPosition).getReplyList().clear();
+//            commentBeanList.get(groupPosition).getReplyList().addAll(replyBeanList);
+//        }else {
+//
+//            commentBeanList.get(groupPosition).setReplyList(replyBeanList);
+//        }
+//
+//        notifyDataSetChanged();
     }
 
 }
