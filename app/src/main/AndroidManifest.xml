@@ -46,6 +46,8 @@
         <activity android:name=".achieve.main.publish.activity.PublishContentActivity"></activity>
         <activity android:name=".achieve.main.donation.activity.DonationActivity"></activity>
         <activity android:name=".achieve.main.publish.activity.ChangYanDetailActivity"></activity>
+        <activity android:name=".achieve.main.lost.activity.LostInfoDetailActivity"></activity>
+        <activity android:name=".achieve.main.lost.activity.LostInfoActivity"></activity>
     </application>
 
 </manifest>

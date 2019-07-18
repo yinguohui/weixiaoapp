@@ -12,7 +12,7 @@ import android.widget.LinearLayout;
 import com.xihua.wx.weixiao.R;
 
 public class LostActivity extends AppCompatActivity implements View.OnClickListener {
-    ImageView iv_back;
+    ImageView iv_back,lostlists;
     LinearLayout ll_lost1,ll_lost2;
     Button bt_connectionus,bt_lostpublish;
     @Override
@@ -27,7 +27,9 @@ public class LostActivity extends AppCompatActivity implements View.OnClickListe
         ll_lost2 = findViewById(R.id.ll_lost2);
         bt_connectionus = findViewById(R.id.bt_connectionus);
         bt_lostpublish = findViewById(R.id.bt_lostpublish);
+        lostlists = findViewById(R.id.lostlists);
 
+        lostlists.setOnClickListener(this);
         iv_back.setOnClickListener(this);
         ll_lost1.setOnClickListener(this);
         ll_lost2.setOnClickListener(this);
@@ -46,7 +48,9 @@ public class LostActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.ll_lost2:
                 startActivity(new Intent(LostActivity.this,LostPublishActivity.class));
-                finish();
+                break;
+            case R.id.lostlists:
+                startActivity(new Intent(LostActivity.this,LostInfoActivity.class));
                 break;
         }
     }
