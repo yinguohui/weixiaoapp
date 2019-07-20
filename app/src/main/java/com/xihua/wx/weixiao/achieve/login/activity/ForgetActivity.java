@@ -11,26 +11,25 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.xihua.wx.weixiao.R;
+import com.xihua.wx.weixiao.utils.CheckCode;
 import com.xihua.wx.weixiao.utils.OkHttpUtil;
 import com.xihua.wx.weixiao.utils.ToastUtil;
+import com.xihua.wx.weixiao.utils.VerificationUtils;
 
 import java.io.IOException;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
 public class ForgetActivity extends AppCompatActivity implements View.OnClickListener {
-    EditText et_phone;
-    EditText et_code;
-    Button bt_code;
-    Button bt_forget;
+    private Logger logger = Logger.getLogger("ForgetActivity");
+    EditText et_phone,et_code,et_newpassword;
+    CheckCode checkCode;
     String code = "";
-    String shoujihao="";
-    String newmima = "";
-    EditText et_newpassword;
-    private boolean runningDownTimer;     //判断是否在倒计时
     private Handler handler = new Handler() {
 
         @Override
@@ -38,6 +37,9 @@ public class ForgetActivity extends AppCompatActivity implements View.OnClickLis
             switch (msg.what) {
                 case -1:
                     ToastUtil.showToast(ForgetActivity.this,"网络错误");
+                    break;
+                case 3:
+                    ToastUtil.showToast(ForgetActivity.this,"验证码已发送");
                     break;
             }
         }
@@ -51,37 +53,37 @@ public class ForgetActivity extends AppCompatActivity implements View.OnClickLis
     private void init(){
         et_phone = findViewById(R.id.et_phone);
         et_code = findViewById(R.id.et_code);
-        bt_code = findViewById(R.id.bt_code);
-        bt_forget = findViewById(R.id.bt_forget);
         et_newpassword = findViewById(R.id.et_newpassword);
-        bt_code.setOnClickListener(this);
-        bt_forget.setOnClickListener(this);
+        checkCode = findViewById(R.id.bt_code);
 
+        checkCode.setOnClickListener(this);
+        findViewById(R.id.bt_code).setOnClickListener(this);
+        findViewById(R.id.bt_forget).setOnClickListener(this);
+        findViewById(R.id.iv_back).setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.bt_code:
-                onPcode();
+                if (checkCode.isFinish()){
+                    checkCode.start();
+                    getcode();
+                }
                 break;
             case R.id.bt_forget:
                 newpassword();
+            case R.id.iv_back:
+                finish();
                 break;
 
         }
     }
 
     private void  newpassword(){
-        if (!judge()){
-            return;
-        }
-        if (et_code.getText().toString().equals("")){
-            ToastUtil.showToast(ForgetActivity.this,"请输入验证码");
-        }
         if (code.equals(et_code.getText().toString())){
             //重置修改密码
-            OkHttpUtil.doGet("http://192.168.43.240:8080/user/updateuserpassword?userTel="+shoujihao+"&userPassword="+newmima, new Callback() {
+            OkHttpUtil.doGet("http://192.168.43.240:8080/user/updateuserpassword?userTel="+et_phone.getText().toString()+"&userPassword="+et_newpassword.getText().toString(), new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     handler.sendEmptyMessage(-1);
@@ -108,40 +110,10 @@ public class ForgetActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    /**
-     * 倒计时
-     */
-    private CountDownTimer downTimer = new CountDownTimer(60 * 1000, 1000) {
-        @Override
-        public void onTick(long l) {
-            runningDownTimer = true;
-            bt_code.setText((l / 1000) + "秒后重发");
-        }
 
-        @Override
-        public void onFinish() {
-            runningDownTimer = false;
-            bt_code.setText("重新发送");
-        }
-
-    };
-
-    //发送验证码按钮
-    public void onPcode() {
-        if (!judge()){
-            return;
-        }
-        //如果60秒倒计时没有结束
-        if (runningDownTimer) {
-            return;
-        }
-
-        bt_code.setText("正在发送");
-        getcode();
-        downTimer.start();  // 倒计时开始
-    }
     //获取后台验证码
     private void getcode(){
+        if (!VerificationUtils.judge(et_phone,et_newpassword,ForgetActivity.this))return;
         Random r = new Random();
         code = "";
         //产生随机验证码
@@ -149,7 +121,7 @@ public class ForgetActivity extends AppCompatActivity implements View.OnClickLis
             code +=r.nextInt(10);
         }
 
-        OkHttpUtil.doGet("http://v.juhe.cn/sms/send?mobile="+shoujihao+"&tpl_id=154057&tpl_value=%23code%23%3D"+code+"&key=3ce6ab5eaa050dcc5780aba49b1c0363", new Callback() {
+        OkHttpUtil.doGet("http://v.juhe.cn/sms/send?mobile="+et_phone.getText().toString()+"&tpl_id=154057&tpl_value=%23code%23%3D"+code+"&key=3ce6ab5eaa050dcc5780aba49b1c0363", new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
@@ -159,24 +131,13 @@ public class ForgetActivity extends AppCompatActivity implements View.OnClickLis
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()){
+                    logger.log(Level.INFO,response.body().string());
+                    handler.sendEmptyMessage(3);
                 }else {
                     handler.sendEmptyMessage(-1);
                 }
             }
         });
-    }
-    private boolean judge(){
-        shoujihao = et_phone.getText().toString();
-        newmima = et_newpassword.getText().toString();
-        if (shoujihao.equals("")||newmima.equals("")){
-            ToastUtil.showToast(ForgetActivity.this,"手机号或新密码不能为空");
-            return false;
-        }
-        if (shoujihao.length()!=11){
-            ToastUtil.showToast(ForgetActivity.this,"请输入正确的手机号");
-            return false;
-        }
-        return true;
     }
 
 }

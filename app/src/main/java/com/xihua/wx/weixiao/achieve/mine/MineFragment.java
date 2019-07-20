@@ -1,19 +1,12 @@
 package com.xihua.wx.weixiao.achieve.mine;
 
 import android.content.Intent;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.xihua.wx.weixiao.R;
 import com.xihua.wx.weixiao.achieve.base.view.BaseFragment;
-import com.xihua.wx.weixiao.achieve.mine.activity.LoginActivity;
+import com.xihua.wx.weixiao.achieve.login.activity.LoginActivity;
 import com.xihua.wx.weixiao.utils.image.CircleNetworkImageImage;
 
 public class MineFragment extends BaseFragment implements View.OnClickListener{
@@ -27,7 +20,7 @@ public class MineFragment extends BaseFragment implements View.OnClickListener{
 
     @Override
     public void initContentView(View viewContent) {
-
+        init(viewContent);
     }
 
     private void init(View view){
@@ -44,6 +37,7 @@ public class MineFragment extends BaseFragment implements View.OnClickListener{
 
         //设置控件事件
 
+        iv_user.setOnClickListener(this);
         rl_selloutgoods.setOnClickListener(this);
         rl_sellinggoods.setOnClickListener(this);
         rl_donationlists.setOnClickListener(this);
@@ -58,6 +52,9 @@ public class MineFragment extends BaseFragment implements View.OnClickListener{
     @Override
     public void onClick(View v) {
         switch (v.getId()){
+            case R.id.iv_user:
+                startActivity(new Intent(getContext(),LoginActivity.class));
+                break;
             case R.id.rl_selloutgoods:
                 //startActivity(new Intent(getActivity(), TitleActivity.class));
                 break;

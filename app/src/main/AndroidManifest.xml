@@ -48,6 +48,9 @@
         <activity android:name=".achieve.main.publish.activity.ChangYanDetailActivity"></activity>
         <activity android:name=".achieve.main.lost.activity.LostInfoDetailActivity"></activity>
         <activity android:name=".achieve.main.lost.activity.LostInfoActivity"></activity>
+        <activity android:name=".achieve.login.activity.LoginActivity"></activity>
+        <activity android:name=".achieve.login.activity.ForgetActivity"></activity>
+        <activity android:name=".achieve.login.activity.RegisterActivity"></activity>
     </application>
 
 </manifest>

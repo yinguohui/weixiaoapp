@@ -15,6 +15,16 @@
             android:layout_height="50dp"
             android:padding="13dp"
             android:src="@drawable/icon_back" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_centerInParent="true"
+            android:layout_marginRight="10dp"
+            android:textColor="@color/colorWhite"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:text="注册账号"/>
     </RelativeLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -84,7 +94,7 @@
                 android:background="@drawable/login_register_psw_edit_bg"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"/>
-            <Button
+            <com.xihua.wx.weixiao.utils.CheckCode
                 android:id="@+id/bt_code"
                 android:layout_width="120dp"
                 android:layout_height="45dp"
