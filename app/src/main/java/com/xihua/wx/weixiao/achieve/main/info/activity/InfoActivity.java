@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -15,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -23,22 +26,55 @@ import com.luck.picture.lib.permissions.RxPermissions;
 import com.luck.picture.lib.tools.PictureFileUtils;
 import com.xihua.wx.weixiao.R;
 import com.xihua.wx.weixiao.achieve.main.adapter.GridImageAdapter;
+import com.xihua.wx.weixiao.achieve.main.sell.SellBuyActivity;
+import com.xihua.wx.weixiao.achieve.main.sell.adapter.GoodsAdapter;
+import com.xihua.wx.weixiao.bean.ApiResult;
+import com.xihua.wx.weixiao.bean.ErrorStatus;
+import com.xihua.wx.weixiao.bean.SuggestionRequest;
+import com.xihua.wx.weixiao.utils.MapUtil;
+import com.xihua.wx.weixiao.utils.OkHttpUtil;
+import com.xihua.wx.weixiao.utils.StringUtils;
+import com.xihua.wx.weixiao.utils.ToastUtil;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class InfoActivity extends AppCompatActivity implements View.OnClickListener{
     ImageView iv_back;
     EditText et_info;
     Button bt_info_commit;
+    private ApiResult<Integer> apiResult;
+    private Gson gson = new Gson();
     private List<LocalMedia> selectList = new ArrayList<>();
+    private List<String> stringList = new ArrayList<>();
     private RecyclerView recyclerView;
     private GridImageAdapter adapter;
     private int maxSelectNum = 9;
+    private Handler handler = new Handler() {
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case 0:
+                    ToastUtil.showToast(InfoActivity.this,"请输入内容");
+                    break;
+                case 1:
+                    ToastUtil.showToast(InfoActivity.this,"网络错误");
+                    break;
+                case 2:
+                    ToastUtil.showToast(InfoActivity.this,"提交错误");
+                    break;
+            }
+        }
+    };
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -176,21 +212,13 @@ public class InfoActivity extends AppCompatActivity implements View.OnClickListe
                         .withAspectRatio(1, 1)// 裁剪比例 如16:9 3:2 3:4 1:1 可自定义
                         .hideBottomControls(true)// 是否显示uCrop工具栏，默认不显示
                         .isGif(false)// 是否显示gif图片
-                        .freeStyleCropEnabled(false)// 裁剪框是否可拖拽
                         .circleDimmedLayer(false)// 是否圆形裁剪
                         .showCropFrame(false)// 是否显示裁剪矩形边框 圆形裁剪时建议设为false
                         .showCropGrid(false)// 是否显示裁剪矩形网格 圆形裁剪时建议设为false
                         .openClickSound(true)// 是否开启点击声音
                         .selectionMedia(selectList)// 是否传入已选图片
                         .previewEggs(false)//预览图片时 是否增强左右滑动图片体验(图片滑动一半即可看到上一张是否选中)
-                        //.previewEggs(false)// 预览图片时 是否增强左右滑动图片体验(图片滑动一半即可看到上一张是否选中)
-                        //.cropCompressQuality(90)// 裁剪压缩质量 默认为100
                         .minimumCompressSize(100)// 小于100kb的图片不压缩
-                        //.cropWH()// 裁剪宽高比，设置如果大于图片本身宽高则无效
-                        //.rotateEnabled() // 裁剪是否可旋转图片
-                        //.scaleEnabled()// 裁剪是否可放大缩小图片
-                        //.videoQuality()// 视频录制质量 0 or 1
-                        //.videoSecond()////显示多少秒以内的视频or音频也可适用
                         .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
             }
         }
@@ -205,12 +233,8 @@ public class InfoActivity extends AppCompatActivity implements View.OnClickListe
                 case PictureConfig.CHOOSE_REQUEST:
                     // 图片选择结果回调
                     selectList = PictureSelector.obtainMultipleResult(data);
-                    // 例如 LocalMedia 里面返回三种path
-                    // 1.media.getPath(); 为原图path
-                    // 2.media.getCutPath();为裁剪后path，需判断media.isCut();是否为true
-                    // 3.media.getCompressPath();为压缩后path，需判断media.isCompressed();是否为true
-                    // 如果裁剪并压缩了，已取压缩路径为准，因为是先裁剪后压缩的
                     for (LocalMedia media : selectList) {
+                        stringList.add(media.getCompressPath());
                         Log.i("图片-----》", media.getPath());
                     }
                     adapter.setList(selectList);
@@ -248,6 +272,31 @@ public class InfoActivity extends AppCompatActivity implements View.OnClickListe
 
     //提交反馈信息
     private void infocommit(){
-        startActivity(new Intent(InfoActivity.this,InfoSuccessActivity.class));
+        SuggestionRequest suggestionRequest = new SuggestionRequest();
+        if (!StringUtils.judgeIsBlack(et_info)){
+            handler.sendEmptyMessage(0);
+            return;
+        }
+        suggestionRequest.setSuggestionContent(StringUtils.getEidtContent(et_info));
+        suggestionRequest.setSuggestionUserId(1551);
+        OkHttpUtil.uploadmany("http://192.168.43.240:8080/suggestion/add", MapUtil.objectToMap(suggestionRequest), stringList, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                handler.sendEmptyMessage(1);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()){
+                    apiResult = gson.fromJson(response.body().string(),ApiResult.class);if (apiResult.getCode()==200){
+                    if (apiResult.getData()>=1){
+                        startActivity(new Intent(InfoActivity.this,InfoSuccessActivity.class));
+                    }else {
+                       handler.sendEmptyMessage(2);
+                    }
+                }
+                }
+            }
+        });
     }
 }

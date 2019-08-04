@@ -2,10 +2,19 @@ package com.xihua.wx.weixiao.bean;
 
 public class GoodsRequestBean {
     private String goodsName;
-    private String goodsPlace;
-    private String goodsDesciption;
-    private Integer goodsType;
     private Double goodsPrice;
+    private String goodsDesciption;
+    private Integer goodsUserNo;
+    private String goodsPlace;
+    private Integer goodsType;
+
+    public Integer getGoodsUserNo() {
+        return goodsUserNo;
+    }
+
+    public void setGoodsUserNo(Integer goodsUserNo) {
+        this.goodsUserNo = goodsUserNo;
+    }
 
     public String getGoodsName() {
         return goodsName;
