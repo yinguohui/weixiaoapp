@@ -51,6 +51,7 @@
         <activity android:name=".achieve.login.activity.LoginActivity"></activity>
         <activity android:name=".achieve.login.activity.ForgetActivity"></activity>
         <activity android:name=".achieve.login.activity.RegisterActivity"></activity>
+        <activity android:name=".achieve.mine.activity.SettingActivity"></activity>
     </application>
 
 </manifest>

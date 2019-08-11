@@ -11,16 +11,16 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.jcodecraeer.xrecyclerview.XRecyclerView;
 import com.xihua.wx.weixiao.R;
-import com.xihua.wx.weixiao.bean.GoodsResponseBean;
+import com.xihua.wx.weixiao.vo.response.GoodsResponse;
 
 import java.util.List;
 
 public class GoodsAdapter extends XRecyclerView.Adapter implements View.OnClickListener {
     private Context context;
-    private List<GoodsResponseBean.GoodsResponse> list;
+    private List<GoodsResponse> list;
 
 
-    public GoodsAdapter(List<GoodsResponseBean.GoodsResponse> list, Context context) {
+    public GoodsAdapter(List<GoodsResponse> list, Context context) {
         this.context = context;
         this.list = list;
     }
@@ -34,8 +34,11 @@ public class GoodsAdapter extends XRecyclerView.Adapter implements View.OnClickL
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         if (holder instanceof ViewHolder) {
-            GoodsResponseBean.GoodsResponse bean = list.get(position);
-            Glide.with(context).load(bean.getGoodsImg().split("$")[0]).into(((ViewHolder) holder).iv_goods_img);
+            GoodsResponse bean = list.get(position);
+            String[] imgs = bean.getGoodsImg().split("$%");
+            if (imgs.length==1){
+                Glide.with(context).load(imgs[0]).into(((ViewHolder) holder).iv_goods_img);
+            }
             ((ViewHolder) holder).tv_name.setText(bean.getGoodsName());
             ((ViewHolder) holder).tv_price.setText(bean.getGoodsPrice()+"");
             ((ViewHolder) holder).tv_space.setText(bean.getGoodsPlace());

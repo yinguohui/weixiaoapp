@@ -10,11 +10,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.google.gson.Gson;
 import com.xihua.wx.weixiao.R;
+import com.xihua.wx.weixiao.bean.ApiResult;
 import com.xihua.wx.weixiao.utils.CheckCode;
 import com.xihua.wx.weixiao.utils.OkHttpUtil;
 import com.xihua.wx.weixiao.utils.ToastUtil;
 import com.xihua.wx.weixiao.utils.VerificationUtils;
+import com.xihua.wx.weixiao.vo.request.LoginRequest;
 
 import java.io.IOException;
 import java.util.Random;
@@ -30,6 +33,7 @@ public class ForgetActivity extends AppCompatActivity implements View.OnClickLis
     EditText et_phone,et_code,et_newpassword;
     CheckCode checkCode;
     String code = "";
+    Gson gson = new Gson();
     private Handler handler = new Handler() {
 
         @Override
@@ -38,8 +42,14 @@ public class ForgetActivity extends AppCompatActivity implements View.OnClickLis
                 case -1:
                     ToastUtil.showToast(ForgetActivity.this,"网络错误");
                     break;
-                case 3:
-                    ToastUtil.showToast(ForgetActivity.this,"验证码已发送");
+                case 0:
+                    ToastUtil.showToast(ForgetActivity.this,"发送成功");
+                    break;
+                case 1:
+                    ToastUtil.showToast(ForgetActivity.this,"重置成功，返回登陆");
+                    break;
+                case 2:
+                    ToastUtil.showToast(ForgetActivity.this,"验证码不正确");
                     break;
             }
         }
@@ -81,9 +91,12 @@ public class ForgetActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void  newpassword(){
+        final LoginRequest request = new LoginRequest();
+        request.setUserTel(et_phone.getText().toString());
+        request.setUserPassword(et_newpassword.getText().toString());
         if (code.equals(et_code.getText().toString())){
             //重置修改密码
-            OkHttpUtil.doGet("http://192.168.43.240:8080/user/updateuserpassword?userTel="+et_phone.getText().toString()+"&userPassword="+et_newpassword.getText().toString(), new Callback() {
+            OkHttpUtil.doPost("http://192.168.43.240:8080/user/resetpassword",gson.toJson(request), new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     handler.sendEmptyMessage(-1);
@@ -91,22 +104,15 @@ public class ForgetActivity extends AppCompatActivity implements View.OnClickLis
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-//                    if (response.isSuccessful()){
-//                        Gson gson = new Gson();
-//                        Result result =gson.fromJson(response.body().string(),Result.class);
-//                        if (result.getStatus().equals("success")){
-//                            finish();
-//                            ToastUtil.showToast(ForgetActivity.this,"重置成功，返回登陆");
-//                        }else {
-//                            ToastUtil.showToast(ForgetActivity.this,"手机号尚未注册");
-//                        }
-//                    }else {
-//                        handler.sendEmptyMessage(-1);
-//                    }
+                    if (response.isSuccessful()){
+                        judgeResult(response.body().string());
+                    }else {
+                        handler.sendEmptyMessage(-1);
+                    }
                 }
             });
         }else {
-            ToastUtil.showToast(ForgetActivity.this,"验证码不正确");
+            handler.sendEmptyMessage(2);
         }
     }
 
@@ -120,7 +126,6 @@ public class ForgetActivity extends AppCompatActivity implements View.OnClickLis
         for (int i=0;i<6;i++){
             code +=r.nextInt(10);
         }
-
         OkHttpUtil.doGet("http://v.juhe.cn/sms/send?mobile="+et_phone.getText().toString()+"&tpl_id=154057&tpl_value=%23code%23%3D"+code+"&key=3ce6ab5eaa050dcc5780aba49b1c0363", new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -132,12 +137,22 @@ public class ForgetActivity extends AppCompatActivity implements View.OnClickLis
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()){
                     logger.log(Level.INFO,response.body().string());
-                    handler.sendEmptyMessage(3);
+                    handler.sendEmptyMessage(0);
                 }else {
                     handler.sendEmptyMessage(-1);
                 }
             }
         });
+    }
+
+    private void judgeResult(String result){
+        ApiResult apiResult =gson.fromJson(result,ApiResult.class);
+        if (apiResult.getCode()==200){
+            finish();
+            handler.sendEmptyMessage(1);
+        }else {
+            ToastUtil.showToast(ForgetActivity.this,apiResult.getData().toString());
+        }
     }
 
 }

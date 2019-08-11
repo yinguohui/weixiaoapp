@@ -58,7 +58,7 @@ public class OkHttpUtil {
     }
 
     public static void doPost(String url, String json, Callback callback) {
-        RequestBody body = RequestBody.create(MediaType.parse("\"application/json; charset=utf-8\""), json);
+        RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json);
         Request request = new Request.Builder().url(url).post(body).build();
         getInstance().newCall(request).enqueue(callback);
     }

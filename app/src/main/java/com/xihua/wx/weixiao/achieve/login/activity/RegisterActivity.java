@@ -9,10 +9,12 @@ import android.widget.EditText;
 
 import com.google.gson.Gson;
 import com.xihua.wx.weixiao.R;
+import com.xihua.wx.weixiao.bean.ApiResult;
 import com.xihua.wx.weixiao.utils.CheckCode;
 import com.xihua.wx.weixiao.utils.OkHttpUtil;
 import com.xihua.wx.weixiao.utils.ToastUtil;
 import com.xihua.wx.weixiao.utils.VerificationUtils;
+import com.xihua.wx.weixiao.vo.request.LoginRequest;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -30,6 +32,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private String shoujihao="";
     private String newmima = "";
     private String code ="";
+    private Gson gson = new Gson();
     private Handler handler = new Handler() {
 
         @Override
@@ -38,8 +41,10 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 case -1:
                     ToastUtil.showToast(RegisterActivity.this,"网络错误");
                     break;
-                case 3:
+                case 0:
                     ToastUtil.showToast(RegisterActivity.this,"验证码已发送");
+                case 1:
+                    ToastUtil.showToast(RegisterActivity.this,"注册成功，返回登陆");
                     break;
             }
         }
@@ -92,48 +97,49 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         OkHttpUtil.doGet("http://v.juhe.cn/sms/send?mobile="+et_phone.getText().toString()+"&tpl_id=157950&tpl_value=%23code%23%3D"+code+"&key=3ce6ab5eaa050dcc5780aba49b1c0363", new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                handler.sendEmptyMessage(3);
+                handler.sendEmptyMessage(-1);
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()){
-                    handler.sendEmptyMessage(3);
+                    handler.sendEmptyMessage(0);
                 }
             }
         });
     }
 
     private void register(){
-        Map<String,String> map = new HashMap<>();
-        map.put("userTel",shoujihao);
-        map.put("userPassword",newmima);
-        OkHttpUtil.doPost("http://192.168.43.240:8080/user/register", map, new Callback() {
+        LoginRequest request = new LoginRequest();
+        request.setUserTel(shoujihao);
+        request.setUserPassword(newmima);
+        OkHttpUtil.doPost("http://192.168.43.240:8080/user/register", gson.toJson(request), new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
-                ToastUtil.showToast(RegisterActivity.this,"注册失败");
+                handler.sendEmptyMessage(-1);
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()){
-                    formdata(response.body().string());
+                    judgeResult(response.body().string());
+                }else {
+                    handler.sendEmptyMessage(-1);
                 }
 
             }
         });
     }
 
-    private void formdata(String data){
-        Gson gson = new Gson();
-        Map map = gson.fromJson(data,Map.class);
-        if (map.get("status").equals("success")){
-            ToastUtil.showToast(RegisterActivity.this,"注册成功");
+    private void judgeResult(String data){
+        ApiResult apiResult = gson.fromJson(data,ApiResult.class);
+        if (apiResult.getCode()==200){
+            handler.sendEmptyMessage(1);
             finish();
         }
         else {
-            ToastUtil.showToast(RegisterActivity.this,"注册失败"+map.get("message"));
+            ToastUtil.showToast(RegisterActivity.this,apiResult.getData().toString());
         }
     }
 }

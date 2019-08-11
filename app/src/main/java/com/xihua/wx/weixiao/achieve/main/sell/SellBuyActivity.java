@@ -11,18 +11,18 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.jcodecraeer.xrecyclerview.ProgressStyle;
 import com.jcodecraeer.xrecyclerview.XRecyclerView;
 import com.xihua.wx.weixiao.R;
-import com.xihua.wx.weixiao.achieve.main.info.activity.InfoActivity;
 import com.xihua.wx.weixiao.achieve.main.sell.adapter.GoodsAdapter;
 import com.xihua.wx.weixiao.bean.ApiResult;
-import com.xihua.wx.weixiao.bean.GoodsRequestBean;
-import com.xihua.wx.weixiao.bean.GoodsResponseBean;
-import com.xihua.wx.weixiao.bean.IdQueryRequest;
+import com.xihua.wx.weixiao.query.GoodsQuery;
+import com.xihua.wx.weixiao.query.PageResult;
 import com.xihua.wx.weixiao.utils.MapUtil;
 import com.xihua.wx.weixiao.utils.OkHttpUtil;
 import com.xihua.wx.weixiao.utils.ToastUtil;
+import com.xihua.wx.weixiao.vo.response.GoodsResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,12 +36,11 @@ public class SellBuyActivity extends AppCompatActivity implements View.OnClickLi
     ImageView iv_back,iv_search;
     XRecyclerView xc_goods;
     private LinearLayoutManager manager;
-    IdQueryRequest idQueryRequest = new IdQueryRequest();
+    GoodsQuery query = new GoodsQuery();
     GoodsAdapter goodsAdapter;
     EditText et_goodsbuy;
-    GoodsResponseBean bean = new GoodsResponseBean();
+    List<GoodsResponse> bean = new ArrayList<GoodsResponse>();
     Gson gson = new Gson();
-    List<GoodsResponseBean.GoodsResponse>  list = new ArrayList<>();
     private Handler handler = new Handler() {
 
         @Override
@@ -51,10 +50,12 @@ public class SellBuyActivity extends AppCompatActivity implements View.OnClickLi
                     ToastUtil.showToast(SellBuyActivity.this,"网络错误");
                     break;
                 case 1:
-                    goodsAdapter = new GoodsAdapter(list,SellBuyActivity.this);
+                    goodsAdapter = new GoodsAdapter(bean,SellBuyActivity.this);
                     xc_goods.setAdapter(goodsAdapter);
-                    xc_goods.refreshComplete();
                     goodsAdapter.notifyDataSetChanged();
+                    break;
+                case 2:
+                    ToastUtil.showToast(SellBuyActivity.this,"暂无数据");
                     break;
             }
         }
@@ -85,20 +86,24 @@ public class SellBuyActivity extends AppCompatActivity implements View.OnClickLi
             //刷新
             @Override
             public void onRefresh() {
-                idQueryRequest.setSize(10);
-                idQueryRequest.setCurrent(0);
-                initData(idQueryRequest);
+                query.setCurrentPage(1);
+                query.setPageSize(10);
+                initData(query);
+                xc_goods.refreshComplete();
             }
             //加载更多
             @Override
             public void onLoadMore() {
-                idQueryRequest.setCurrent(idQueryRequest.getSize()+idQueryRequest.getCurrent());
-                idQueryRequest.setSize(10);
-                xc_goods.refreshComplete();
+                if (bean.size()==10){
+                    query.setCurrentPage(query.getCurrentPage()+1);
+                    query.setPageSize(10);
+                    initData(query);
+                    xc_goods.refreshComplete();
+                }
+
             }
         });
         xc_goods.refresh();
-
         iv_back.setOnClickListener(this);
         iv_search.setOnClickListener(this);
     }
@@ -113,39 +118,33 @@ public class SellBuyActivity extends AppCompatActivity implements View.OnClickLi
                 break;
         }
     }
-    private void initData(IdQueryRequest idQueryRequest){
-        OkHttpUtil.doPost("http://192.168.43.240:8080/goods/queryAll", gson.toJson(idQueryRequest), new Callback() {
+    private void initData(GoodsQuery query){
+        OkHttpUtil.doPost("http://192.168.43.240:8080/goods/queryAll", gson.toJson(query), new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                handler.sendEmptyMessage(0);
+                e.fillInStackTrace();
+                handler.sendEmptyMessage(-1);
             }
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()){
-                    ApiResult<GoodsResponseBean> apiResult = gson.fromJson(response.body().string(),ApiResult.class);
+                    ApiResult apiResult = gson.fromJson(response.body().string(),ApiResult.class);
+                    PageResult pageResult = gson.fromJson(gson.toJson(apiResult.getData()), new TypeToken<PageResult<GoodsResponse>>() {
+                    }.getType());
                     if (apiResult.getCode()==200){
-                        if (apiResult.getData().getList().size()>=0){
-                            bean = apiResult.getData();
-                            list = bean.getList();
-                            handler.sendEmptyMessage(2);
+                        if (pageResult.getItems().size()>0){
+                            bean = pageResult.getItems();
+                            handler.sendEmptyMessage(1);
                         }else {
-                            handler.sendEmptyMessage(3);
+                            handler.sendEmptyMessage(2);
                         }
                     }else {
-                        handler.sendEmptyMessage(3);
+                        handler.sendEmptyMessage(-1);
                     }
                 }
             }
         });
-//        String test = "{\n" +
-//                "\t\"code\": 200,\n" +
-//                "\t\"list\": [{\n" +
-//                "\t\t\"goodsName\": \"物品1\",\n" +
-//                "\t\t\"goodsPlace\": \"的信院\",\n" +
-//                "\t\t\"goodsPrice\": 12.2,\n" +
-//                "\t\t\"goodsImg\": \"http://img0.imgtn.bdimg.com/it/u=2604711864,1859130880&fm=26&gp=0.jpg\"\n" +
-//                "\t}]\n" +
-//                "}";
+
         handler.sendEmptyMessage(1);
     }
 

@@ -9,13 +9,18 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.google.gson.Gson;
+import com.xihua.wx.weixiao.MainActivity;
 import com.xihua.wx.weixiao.R;
+import com.xihua.wx.weixiao.bean.ApiResult;
 import com.xihua.wx.weixiao.bean.user.UserLoginRequestBean;
 import com.xihua.wx.weixiao.bean.user.UserLoginResponseBean;
+import com.xihua.wx.weixiao.utils.MapUtil;
 import com.xihua.wx.weixiao.utils.OkHttpUtil;
 import com.xihua.wx.weixiao.utils.SpUtil;
 import com.xihua.wx.weixiao.utils.ToastUtil;
 import com.xihua.wx.weixiao.utils.VerificationUtils;
+import com.xihua.wx.weixiao.vo.request.LoginRequest;
+import com.xihua.wx.weixiao.vo.response.IdrResponse;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -28,17 +33,20 @@ import okhttp3.Response;
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
     Logger logger = Logger.getLogger("LoginActivity");
     Gson gson = new Gson();
-    private EditText et_phone,et_password;
+    private EditText et_phone, et_password;
     private Handler handler = new Handler() {
 
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case -1:
-                    ToastUtil.showToast(LoginActivity.this,"网络错误");
+                    ToastUtil.showToast(LoginActivity.this, "网络错误");
                     break;
                 case 1:
-                    ToastUtil.showToast(LoginActivity.this,"登录成功");
+                    ToastUtil.showToast(LoginActivity.this, "登录成功");
+                    break;
+                case 2:
+                    ToastUtil.showToast(LoginActivity.this, "账号或密码错误！");
                     break;
             }
         }
@@ -52,9 +60,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
 
-
-    private void initView(){
-        et_phone =  findViewById(R.id.et_phone);
+    private void initView() {
+        et_phone = findViewById(R.id.et_phone);
         et_password = findViewById(R.id.et_password);
 
         findViewById(R.id.iv_back).setOnClickListener(this);
@@ -66,51 +73,60 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            //退出
+            // 退出
             case R.id.iv_back:
                 finish();
                 break;
-            //点击登陆
+            // 点击登陆
             case R.id.bt_login:
-                if (VerificationUtils.judge(et_phone,et_password,LoginActivity.this))
-                login();
+                if (VerificationUtils.judge(et_phone, et_password, LoginActivity.this))
+                    login();
                 break;
-            //忘记密码
-            case  R.id.tv_forget:
-                startActivity(new Intent(LoginActivity.this,ForgetActivity.class));
+            // 忘记密码
+            case R.id.tv_forget:
+                startActivity(new Intent(LoginActivity.this, ForgetActivity.class));
                 break;
-            //注册
-            case  R.id.tv_register:
-                startActivity(new Intent(LoginActivity.this,RegisterActivity.class));
+            // 注册
+            case R.id.tv_register:
+                startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
                 break;
         }
     }
 
-    private void login(){
-        UserLoginRequestBean bean = new UserLoginRequestBean();
-        bean.setTel(et_phone.getText().toString());
-        bean.setPassword(et_password.getText().toString());
-        String s = gson.toJson(bean);
-        OkHttpUtil.doPost("http://192.168.43.240:8080/user/login", gson.toJson(bean), new Callback() {
+    private void login() {
+        LoginRequest request = new LoginRequest();
+        request.setUserTel(et_phone.getText().toString());
+        request.setUserPassword(et_password.getText().toString());
+        OkHttpUtil.doPost("http://192.168.43.240:8080/user/login", MapUtil.objectToMap(request), new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-               logger.log(Level.INFO,e.getMessage());
+                logger.log(Level.INFO, e.getMessage());
                 handler.sendEmptyMessage(-1);
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()){
+                if (response.isSuccessful()) {
                     success(response.body().string());
-                }else {
+                } else {
                     handler.sendEmptyMessage(-1);
                 }
             }
         });
     }
+
     private void success(String data) {
-        UserLoginResponseBean userResult = gson.fromJson(data, UserLoginResponseBean.class);
-        SpUtil.putString(LoginActivity.this, "userid", "");
-        handler.sendEmptyMessage(1);
+        ApiResult<IdrResponse> userResult = gson.fromJson(data, ApiResult.class);
+        IdrResponse idrResponse =  gson.fromJson(gson.toJson(userResult.getData()),IdrResponse.class);
+        if (userResult.getCode()==200){
+            handler.sendEmptyMessage(1);
+            SpUtil.putBoolean(LoginActivity.this,"isLogin",true);
+            SpUtil.putString(LoginActivity.this, "userid", String.valueOf(idrResponse.getId()));
+            finish();
+            startActivity(new Intent(LoginActivity.this,MainActivity.class));
+        }else {
+            handler.sendEmptyMessage(2);
+        }
+
     }
 }

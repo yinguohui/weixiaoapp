@@ -34,7 +34,7 @@ public class MapUtil {
                     map.put(field.getName(), field.get(obj));
                 } else {
                     if (field.get(obj) != null && !"".equals(field.get(obj).toString())) {
-                        map.put(field.getName(), field.get(obj));
+                        map.put( field.getName(), field.get(obj));
                     }
                 }
             }

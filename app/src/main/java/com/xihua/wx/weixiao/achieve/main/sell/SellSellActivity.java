@@ -18,6 +18,8 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -29,6 +31,7 @@ import com.xihua.wx.weixiao.achieve.main.adapter.GridImageAdapter;
 import com.xihua.wx.weixiao.achieve.main.sell.adapter.GoodsAdapter;
 import com.xihua.wx.weixiao.bean.ApiResult;
 import com.xihua.wx.weixiao.bean.GoodsRequestBean;
+import com.xihua.wx.weixiao.utils.GsonTypeAdapter;
 import com.xihua.wx.weixiao.utils.MapUtil;
 import com.xihua.wx.weixiao.utils.OkHttpUtil;
 import com.xihua.wx.weixiao.utils.StringUtils;
@@ -38,6 +41,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
@@ -50,7 +54,9 @@ public class SellSellActivity extends AppCompatActivity implements View.OnClickL
     EditText sell_name,sell_area,sell_price,sell_description;
     RecyclerView recyclerView;
     Button sell_submit;
-    Gson gson = new Gson();
+    Gson gson = new GsonBuilder().registerTypeAdapter(new TypeToken<Map<String, Object>>(){
+    }.getType(), new GsonTypeAdapter()).create();
+
     private List<String> stringList = new ArrayList<>();
     GridImageAdapter adapter;
     List<LocalMedia> selectList = new ArrayList<>();
@@ -256,9 +262,9 @@ public class SellSellActivity extends AppCompatActivity implements View.OnClickL
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     if (response.isSuccessful()){
-                        ApiResult<Integer> apiResult = gson.fromJson(response.body().string(),ApiResult.class);
+                        ApiResult<Double> apiResult = gson.fromJson(response.body().string(),ApiResult.class);
                         if (apiResult.getCode()==200){
-                            if (apiResult.getData()>=1){
+                            if (apiResult.getData().intValue()>=1){
                                 handler.sendEmptyMessage(2);
                                 finish();
                             }else {
