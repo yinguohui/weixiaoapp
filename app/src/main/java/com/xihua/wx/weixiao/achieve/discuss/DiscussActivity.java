@@ -41,6 +41,7 @@ public class DiscussActivity extends AppCompatActivity {
     private TextView send;
     List<ChatAllResponse> list = new ArrayList<>();
     private Gson gson = new Gson();
+    Runnable  runnable;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -95,6 +96,9 @@ public class DiscussActivity extends AppCompatActivity {
                 case 2:
                     ToastUtil.showToast(DiscussActivity.this,"验证码不正确");
                     break;
+                case 5:
+                    exedata();
+                    break;
             }
         }
     };
@@ -115,7 +119,7 @@ public class DiscussActivity extends AppCompatActivity {
                     ApiResult apiResult = gson.fromJson(response.body().string(),ApiResult.class);
                     if (apiResult.getCode()==200){
                         list = gson.fromJson(gson.toJson(apiResult.getData()),new TypeToken<List<ChatAllResponse>>(){}.getType());
-                        exedata();
+                        handler.sendEmptyMessage(5);
                     }else {
                         handler.sendEmptyMessage(-1);
                     }
@@ -134,13 +138,14 @@ public class DiscussActivity extends AppCompatActivity {
         if (!"".equals(content)) {
             ChatRequest request = new ChatRequest();
             request.setChatContent(content);
-            MsgContentBean msg = new MsgContentBean(1,content);
-            datas.add(msg);
-            adapter.notifyItemInserted(datas.size()-1);
-            recyclerView.scrollToPosition(datas.size()-1);
+//            MsgContentBean msg = new MsgContentBean(1,content);
+//            datas.add(msg);
+//            adapter.notifyItemInserted(datas.size()-1);
+//            recyclerView.scrollToPosition(datas.size()-1);
             etInput.setText("");
-            request.setChatReviceId(1);
-            request.setChatSendId(2);
+            String id = SpUtil.getString(DiscussActivity.this, "userid", "-1");
+            request.setChatReviceId(list.get(0).getUser().getUserId());
+            request.setChatSendId(Integer.parseInt(id));
             add(request);
         }
     }
@@ -148,6 +153,29 @@ public class DiscussActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        initdata();
+        addText();
+    }
+    private void addText(){
+       runnable = new Runnable(){
+            @Override
+            public void run(){
+                initdata();
+                //延迟1秒执行
+                handler.postDelayed(this, 1000);
+            }
+        };
+        handler.post(runnable);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        handler.removeCallbacks(runnable);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        handler.removeCallbacks(runnable);
     }
 }
