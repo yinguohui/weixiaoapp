@@ -6,6 +6,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -22,6 +24,7 @@ import android.widget.ImageView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -30,9 +33,12 @@ import com.luck.picture.lib.permissions.RxPermissions;
 import com.luck.picture.lib.tools.PictureFileUtils;
 import com.xihua.wx.weixiao.R;
 import com.xihua.wx.weixiao.achieve.main.adapter.GridImageAdapter;
+import com.xihua.wx.weixiao.bean.ApiResult;
 import com.xihua.wx.weixiao.bean.DonationBean;
+import com.xihua.wx.weixiao.bean.DonationRequest;
 import com.xihua.wx.weixiao.utils.MapUtil;
 import com.xihua.wx.weixiao.utils.OkHttpUtil;
+import com.xihua.wx.weixiao.utils.SpUtil;
 import com.xihua.wx.weixiao.utils.StringUtils;
 import com.xihua.wx.weixiao.utils.ToastUtil;
 
@@ -54,11 +60,25 @@ public class DonationActivity extends AppCompatActivity implements View.OnClickL
     ImageView iv_back;
     EditText et_donation_name,et_donation_num,et_donation_location,et_donation_time,et_donation_info;
     Button bt_donation_sure;
-    DonationBean donationBean = new DonationBean();
+    DonationRequest request = new DonationRequest();
     private List<LocalMedia> selectList = new ArrayList<>();
     private List<String> stringList = new ArrayList<>();
     private RecyclerView recyclerView;
     private GridImageAdapter adapter;
+    Gson gson = new Gson();
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case 0:
+                    ToastUtil.showToast(DonationActivity.this,"网络错误");
+                    break;
+                case 1:
+                    ToastUtil.showToast(DonationActivity.this,"提交成功");
+                    break;
+            }
+        }
+    };
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -248,21 +268,25 @@ public class DonationActivity extends AppCompatActivity implements View.OnClickL
 
     private void commit(){
         if (check()){
-            donationBean.setDonationName(StringUtils.getEidtContent(et_donation_name));
-            donationBean.setDonationPlace(1);
-            donationBean.setDonationImgs("");
-            donationBean.setDonationCollectionTime(new Date());
-            donationBean.setDonationUserNo("");
-            donationBean.setDonationDescription(StringUtils.getEidtContent(et_donation_info));
+            request.setDonationName(StringUtils.getEidtContent(et_donation_name));
+            request.setDoantionPlace(StringUtils.getEidtContent(et_donation_location));
+//            request.setDoantionTime(Long.parseLong(StringUtils.getEidtContent(et_donation_time)));
+            request.setDoantionDescrption(StringUtils.getEidtContent(et_donation_info));
+            request.setDonationNum(et_donation_num.getId());
+            String id = SpUtil.getString(DonationActivity.this, "userid", "-1");
+            if ("-1".equals(id)) {
+                ToastUtil.showToast(DonationActivity.this, "请登录");
+                return;
+            }
+            request.setDonationUserId(Integer.parseInt(id));
             send();
-            ToastUtil.showToast(DonationActivity.this,MapUtil.objectToMap(donationBean).toString());
         }
         else {
             ToastUtil.showToast(DonationActivity.this,"请确认所有数据都已填写！");
         }
     }
     private void send(){
-        OkHttpUtil.uploadmany("http:192.168.43.240:8080/donation/add", MapUtil.objectToMap(donationBean), stringList, new Callback() {
+        OkHttpUtil.uploadmany("http:192.168.43.240:8080/donation/add", MapUtil.objectToMap(request), stringList, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
 
@@ -271,7 +295,10 @@ public class DonationActivity extends AppCompatActivity implements View.OnClickL
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()){
-                    String ss = response.body().string();
+                    ApiResult apiResult = gson.fromJson(response.body().string(),ApiResult.class);
+                    if (apiResult.getCode()==200){
+
+                    }
                 }
             }
         });

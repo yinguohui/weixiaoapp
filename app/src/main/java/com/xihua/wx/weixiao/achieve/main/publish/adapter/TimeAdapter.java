@@ -1,6 +1,7 @@
 package com.xihua.wx.weixiao.achieve.main.publish.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,9 +10,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.xihua.wx.weixiao.R;
+import com.xihua.wx.weixiao.achieve.main.publish.activity.ChangYanDetailActivity;
 import com.xihua.wx.weixiao.bean.TimeData;
 import com.xihua.wx.weixiao.utils.DensityUtil;
 import com.xihua.wx.weixiao.utils.TimeFormat;
+import com.xihua.wx.weixiao.vo.response.TopicTimeLine;
 
 import java.util.List;
 
@@ -19,9 +22,9 @@ import java.util.List;
 public class TimeAdapter extends RecyclerView.Adapter{
 
     private Context context;
-    private List<TimeData> data;
+    private List<TopicTimeLine> data;
 
-    public TimeAdapter(Context context, List<TimeData> list) {
+    public TimeAdapter(Context context, List<TopicTimeLine> list) {
         this.context = context;
         this.data = list;
     }
@@ -48,7 +51,7 @@ public class TimeAdapter extends RecyclerView.Adapter{
         private RelativeLayout rlTitle;
         private View vLine;
         private int position;
-        private TimeData timeData;
+        private TopicTimeLine timeData;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -67,63 +70,63 @@ public class TimeAdapter extends RecyclerView.Adapter{
             if (position == 0) {
                 //数据个数必须大于等于2，要不对于时间的判断会有越界危险
                 if (data.size() >= 2) {
-                    if (!timeData.getPosttime().equals(data.get(position + 1).getPosttime())) {
-                        //txt_date_title.setBackgroundResource(R.drawable.message_sys_bgfirst);
+                    if (!timeData.getTopicCreateTime().equals(data.get(position + 1).getTopicCreateTime())) {
+                        txt_date_title.setBackgroundResource(R.drawable.message_sys_bgfirst);
                         layoutParams.setMargins(DensityUtil.dip2px(vLine.getContext(), 20), DensityUtil.dip2px(vLine.getContext(), 15), 0, 0);
                     } else {
-                        //txt_date_title.setBackgroundResource(R.drawable.message_sys_bgtop);
+                        txt_date_title.setBackgroundResource(R.drawable.message_sys_bgtop);
                         layoutParams.setMargins(DensityUtil.dip2px(vLine.getContext(), 20), DensityUtil.dip2px(vLine.getContext(), 15), 0, 0);
                     }
                 } else {
-                    //txt_date_title.setBackgroundResource(R.drawable.message_sys_bgfirst);
+                    txt_date_title.setBackgroundResource(R.drawable.message_sys_bgfirst);
                     //动态的代码设置距离上面的边距，只有第一条才有上边距
                     layoutParams.setMargins(DensityUtil.dip2px(vLine.getContext(), 20), DensityUtil.dip2px(vLine.getContext(), 15), 0, 0);
                 }
                 rlTitle.setVisibility(View.VISIBLE);
-                txtDateTime.setText(TimeFormat.format("yyyy.MM.dd", timeData.getPosttime()));
+                txtDateTime.setText(TimeFormat.format("yyyy-MM-dd hh:mm:ss", timeData.getTopicCreateTime()));
                 layoutParams.addRule(RelativeLayout.ALIGN_TOP, R.id.rl_title);
                 layoutParams.addRule(RelativeLayout.ALIGN_BOTTOM, R.id.txt_date_title);
             } else if (position < data.size() - 1) {
 
-                if (timeData.getPosttime().equals(data.get(position - 1).getPosttime())) {
-                    if (timeData.getPosttime().equals(data.get(position + 1).getPosttime())) {
+                if (timeData.getTopicCreateTime().equals(data.get(position - 1).getTopicCreateTime())) {
+                    if (timeData.getTopicCreateTime().equals(data.get(position + 1).getTopicCreateTime())) {
                         rlTitle.setVisibility(View.GONE);
                         layoutParams.setMargins(DensityUtil.dip2px(vLine.getContext(), 20), DensityUtil.dip2px(vLine.getContext(), 0), 0, 0);
-                        //txt_date_title.setBackgroundResource(R.drawable.message_sys_bgcenter);
+                        txt_date_title.setBackgroundResource(R.drawable.message_sys_bgcenter);
                         layoutParams.addRule(RelativeLayout.ALIGN_TOP, R.id.txt_date_title);
                         layoutParams.addRule(RelativeLayout.ALIGN_BOTTOM, R.id.txt_date_title);
                     } else {
                         rlTitle.setVisibility(View.GONE);
-                        //txt_date_title.setBackgroundResource(R.drawable.message_sys_bgbot);
+                        txt_date_title.setBackgroundResource(R.drawable.message_sys_bgbot);
                         layoutParams.addRule(RelativeLayout.ALIGN_TOP, R.id.txt_date_title);
                         layoutParams.addRule(RelativeLayout.ALIGN_BOTTOM, R.id.txt_date_title);
                     }
 
                 } else {
-                    if (!timeData.getPosttime().equals(data.get(position + 1).getPosttime())) {
-                       // txt_date_title.setBackgroundResource(R.drawable.message_sys_bgfirst);
+                    if (!timeData.getTopicCreateTime().equals(data.get(position + 1).getTopicCreateTime())) {
+                        txt_date_title.setBackgroundResource(R.drawable.message_sys_bgfirst);
                     } else {
-                       // txt_date_title.setBackgroundResource(R.drawable.message_sys_bgtop);
+                        txt_date_title.setBackgroundResource(R.drawable.message_sys_bgtop);
                     }
                     layoutParams.setMargins(DensityUtil.dip2px(vLine.getContext(), 20), DensityUtil.dip2px(vLine.getContext(), 0), 0, 0);
                     rlTitle.setVisibility(View.VISIBLE);
-                    txtDateTime.setText(TimeFormat.format("yyyy.MM.dd", timeData.getPosttime()));
+                    txtDateTime.setText(TimeFormat.format("yyyy-MM-dd hh:mm:ss", timeData.getTopicCreateTime()));
                     layoutParams.addRule(RelativeLayout.ALIGN_TOP, R.id.rl_title);
                     layoutParams.addRule(RelativeLayout.ALIGN_BOTTOM, R.id.txt_date_title);
                 }
 
             } else {
-                if (!timeData.getPosttime().equals(data.get(position - 1).getPosttime())) {
-                  //  txt_date_title.setBackgroundResource(R.drawable.message_sys_bgfirst);
+                if (!timeData.getTopicCreateTime().equals(data.get(position - 1).getTopicCreateTime())) {
+                    txt_date_title.setBackgroundResource(R.drawable.message_sys_bgfirst);
                     rlTitle.setVisibility(View.VISIBLE);
-                    txtDateTime.setText(TimeFormat.format("yyyy.MM.dd", timeData.getPosttime()));
+                    txtDateTime.setText(TimeFormat.format("yyyy-MM-dd hh:mm:ss", timeData.getTopicCreateTime()));
                     layoutParams.setMargins(DensityUtil.dip2px(vLine.getContext(), 20), DensityUtil.dip2px(vLine.getContext(), 0), 0, 0);
                     layoutParams.addRule(RelativeLayout.ALIGN_TOP, R.id.rl_title);
                     layoutParams.addRule(RelativeLayout.ALIGN_BOTTOM, R.id.txt_date_title);
                 } else {
                     rlTitle.setVisibility(View.GONE);
-                  //  txt_date_title.setBackgroundResource(R.drawable.message_sys_bgbot);
-                    txtDateTime.setText(TimeFormat.format("yyyy.MM.dd", timeData.getPosttime()));
+                    txt_date_title.setBackgroundResource(R.drawable.message_sys_bgbot);
+                    txtDateTime.setText(TimeFormat.format("yyyy-MM-dd hh:mm:ss", timeData.getTopicCreateTime()));
                     layoutParams.setMargins(DensityUtil.dip2px(vLine.getContext(), 20), DensityUtil.dip2px(vLine.getContext(), 0), 0, 0);
                     layoutParams.addRule(RelativeLayout.ALIGN_TOP, R.id.txt_date_title);
                     layoutParams.addRule(RelativeLayout.ALIGN_BOTTOM, R.id.txt_date_title);
@@ -131,7 +134,15 @@ public class TimeAdapter extends RecyclerView.Adapter{
 
             }
             vLine.setLayoutParams(layoutParams);
-            txt_date_title.setText(timeData.getTitle());
+            txt_date_title.setText(timeData.getTopicContent());
+            rlTitle.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(context,ChangYanDetailActivity.class);
+                    intent.putExtra("topic_id",timeData.getTopicId());
+                    context.startActivity(intent);
+                }
+            });
         }
     }
 }

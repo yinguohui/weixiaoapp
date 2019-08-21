@@ -15,14 +15,15 @@ import com.xihua.wx.weixiao.bean.ChangYanResponseBean;
 import com.xihua.wx.weixiao.bean.LikeMessageList;
 import com.xihua.wx.weixiao.utils.VolleyUtils;
 import com.xihua.wx.weixiao.utils.image.CircleNetworkImageImage;
+import com.xihua.wx.weixiao.vo.response.MineReviewResponse;
 
 import java.util.List;
 
 public class AboutMeAdapter extends XRecyclerView.Adapter implements View.OnClickListener {
     private Context context;
-    private List<LikeMessageList.LikeMessageBean> list;
+    private List<MineReviewResponse> list;
 
-    public AboutMeAdapter(List<LikeMessageList.LikeMessageBean> list, Context context) {
+    public AboutMeAdapter(List<MineReviewResponse> list, Context context) {
         this.context = context;
         this.list = list;
     }
@@ -36,19 +37,19 @@ public class AboutMeAdapter extends XRecyclerView.Adapter implements View.OnClic
     @Override
     public void onBindViewHolder(XRecyclerView.ViewHolder holder, final int position) {
         if (holder instanceof ViewHolder) {
-            LikeMessageList.LikeMessageBean bean = list.get(position);
-            if (!bean.getUserImg().equals("")) {
-                VolleyUtils.loadImage(context, ((ViewHolder) holder).iv_header, bean.getUserImg());
+            MineReviewResponse bean = list.get(position);
+            if (null!=bean.getUser().getUserImg()&&!bean.getUser().getUserImg().equals("")) {
+                VolleyUtils.loadImage(context, ((ViewHolder) holder).iv_header, bean.getUser().getUserImg());
             }
-            ((ViewHolder) holder).tv_name.setText(bean.getUserName());
-            ((ViewHolder) holder).tv_time.setText(bean.getCreateTime()+"");
+            ((ViewHolder) holder).tv_name.setText(bean.getUser().getUserName());
+            ((ViewHolder) holder).tv_time.setText(bean.getReviewCreateTime()+"");
 
-            ((ViewHolder) holder).tv_type.setText("攒了你");
+            ((ViewHolder) holder).tv_type.setText("评论了你:"+bean.getReviewContent());
 
-            if (!bean.getTopicImg().split("%")[0].equals("")) {
-                Glide.with(context).load(bean.getTopicImg().split("$")[0]).into(((ViewHolder) holder).iv_topic_img);
+            if (null!=bean.getTopic().getTopicImg()&&!bean.getTopic().getTopicImg().split("$%")[0].equals("")) {
+                Glide.with(context).load(bean.getTopic().getTopicImg().split("$%")[0]).into(((ViewHolder) holder).iv_topic_img);
             }
-            ((ViewHolder) holder).tv_topic_content.setText(bean.getTopicContent());
+            ((ViewHolder) holder).tv_topic_content.setText(bean.getTopic().getTopicContent());
         }
     }
 

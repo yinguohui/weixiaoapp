@@ -46,8 +46,9 @@
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:textSize="16sp"
-            android:text="丢失地点"/>
+            android:text="物件名称"/>
         <EditText
+            android:id="@+id/lost_name"
             android:textSize="16sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
@@ -61,8 +62,9 @@
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:textSize="16sp"
-            android:text="丢失时间"/>
+            android:text="丢失地点"/>
         <EditText
+            android:id="@+id/lost_palce"
             android:textSize="16sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
@@ -75,6 +77,7 @@
         android:textSize="16sp"
         android:text="物品描述"/>
     <EditText
+        android:id="@+id/lost_description"
         android:layout_margin="10dp"
         android:textSize="16sp"
         android:layout_width="match_parent"

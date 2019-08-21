@@ -34,6 +34,7 @@ import com.xihua.wx.weixiao.bean.GoodsRequestBean;
 import com.xihua.wx.weixiao.utils.GsonTypeAdapter;
 import com.xihua.wx.weixiao.utils.MapUtil;
 import com.xihua.wx.weixiao.utils.OkHttpUtil;
+import com.xihua.wx.weixiao.utils.SpUtil;
 import com.xihua.wx.weixiao.utils.StringUtils;
 import com.xihua.wx.weixiao.utils.ToastUtil;
 
@@ -238,22 +239,27 @@ public class SellSellActivity extends AppCompatActivity implements View.OnClickL
     }
     private Boolean check(){
         if (StringUtils.judgeIsBlack(sell_name)
-                ||StringUtils.judgeIsBlack(sell_area)
-                ||StringUtils.judgeIsBlack(sell_price)
-                ||StringUtils.judgeIsBlack(sell_description)){
+                &&StringUtils.judgeIsBlack(sell_area)
+                &&StringUtils.judgeIsBlack(sell_price)
+                &&StringUtils.judgeIsBlack(sell_description)){
             return true;
         }
         return false;
     }
     private void sendsell(){
         if (check()){
+            String id = SpUtil.getString(SellSellActivity.this, "userid", "-1");
+            if ("-1".equals(id)){
+                ToastUtil.showToast(SellSellActivity.this,"请登录");
+                return;
+            }
             final GoodsRequestBean requestBean = new GoodsRequestBean();
             requestBean.setGoodsName(StringUtils.getEidtContent(sell_name));
             requestBean.setGoodsPlace(StringUtils.getEidtContent(sell_area));
             requestBean.setGoodsPrice(StringUtils.getEidtContentDouble(sell_price));
             requestBean.setGoodsDesciption(StringUtils.getEidtContent(sell_description));
             requestBean.setGoodsType(0);
-            requestBean.setGoodsUserNo(1512);
+            requestBean.setGoodsUserNo(Integer.parseInt(id));
             OkHttpUtil.uploadmany("http://192.168.43.240:8080/goods/add", MapUtil.objectToMap(requestBean), stringList, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {

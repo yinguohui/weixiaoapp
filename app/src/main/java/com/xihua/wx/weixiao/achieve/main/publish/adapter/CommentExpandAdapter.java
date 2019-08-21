@@ -15,8 +15,10 @@ import android.widget.TextView;
 import com.xihua.wx.weixiao.R;
 import com.xihua.wx.weixiao.bean.CommentDetailBean;
 import com.xihua.wx.weixiao.bean.ReplyDetailBean;
+import com.xihua.wx.weixiao.bean.Review;
 import com.xihua.wx.weixiao.utils.VolleyUtils;
 import com.xihua.wx.weixiao.utils.image.CircleNetworkImageImage;
+import com.xihua.wx.weixiao.vo.response.ReviewResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,19 +26,18 @@ import java.util.List;
 //评论和回复的适配器
 public class CommentExpandAdapter extends BaseExpandableListAdapter {
     private static final String TAG = "CommentExpandAdapter";
-    private List<ReplyDetailBean> replyDetailBeans;
+    private List<ReviewResponse> reviews;
     private Context context;
-    boolean isLike = false;
     private int pageIndex = 1;
 
-    public CommentExpandAdapter(Context context, List<ReplyDetailBean> replyDetailBeans) {
+    public CommentExpandAdapter(Context context, List<ReviewResponse> reviews) {
         this.context = context;
-        this.replyDetailBeans = replyDetailBeans;
+        this.reviews = reviews;
     }
 
     @Override
     public int getGroupCount() {
-        return replyDetailBeans.size();
+        return reviews.size();
     }
 
 
@@ -50,13 +51,12 @@ public class CommentExpandAdapter extends BaseExpandableListAdapter {
     //得到某一个评论
     @Override
     public Object getGroup(int i) {
-        return replyDetailBeans.get(i);
+        return reviews.get(i);
     }
 
     @Override
     public Object getChild(int i, int i1) {
         return null;
-        // commentBeanList.get(i).getReplyList().get(i1);
     }
 
     @Override
@@ -85,23 +85,10 @@ public class CommentExpandAdapter extends BaseExpandableListAdapter {
         }else {
             groupHolder = (GroupHolder) convertView.getTag();
         }
-        VolleyUtils.loadImage(context,groupHolder.logo,replyDetailBeans.get(groupPosition).getReviewUserImg());
-        groupHolder.tv_name.setText(replyDetailBeans.get(groupPosition).getReviewUserName());
-        groupHolder.tv_time.setText(replyDetailBeans.get(groupPosition).getReviewCreateTime()+"");
-        groupHolder.tv_content.setText(replyDetailBeans.get(groupPosition).getReviewContent());
-        groupHolder.iv_like.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(isLike){
-                    isLike = false;
-                    groupHolder.iv_like.setColorFilter(Color.parseColor("#aaaaaa"));
-                }else {
-                    isLike = true;
-                    groupHolder.iv_like.setColorFilter(Color.parseColor("#FF5C5C"));
-                }
-            }
-        });
-
+        VolleyUtils.loadImage(context,groupHolder.logo,reviews.get(groupPosition).getUser().getUserImg());
+        groupHolder.tv_name.setText(reviews.get(groupPosition).getUser().getUserName());
+        groupHolder.tv_time.setText(reviews.get(groupPosition).getReviewCreateTime()+"");
+        groupHolder.tv_content.setText(reviews.get(groupPosition).getReviewContent());
         return convertView;
     }
    //加载回复的信息
@@ -143,7 +130,6 @@ public class CommentExpandAdapter extends BaseExpandableListAdapter {
             tv_content =  view.findViewById(R.id.comment_item_content);
             tv_name =  view.findViewById(R.id.comment_item_userName);
             tv_time =  view.findViewById(R.id.comment_item_time);
-            iv_like = (ImageView) view.findViewById(R.id.comment_item_like);
         }
     }
 
@@ -158,12 +144,12 @@ public class CommentExpandAdapter extends BaseExpandableListAdapter {
 
     /**
      * func:评论成功后插入一条数据
-     * @param replyDetailBean 新的评论数据
+     * @param response 新的评论数据
      */
-    public void addTheCommentData(ReplyDetailBean replyDetailBean){
-        if(replyDetailBean!=null){
+    public void addTheCommentData(ReviewResponse response){
+        if(response!=null){
 
-            replyDetailBeans.add(replyDetailBean);
+            reviews.add(response);
             notifyDataSetChanged();
         }else {
             throw new IllegalArgumentException("评论数据为空!");
@@ -192,7 +178,6 @@ public class CommentExpandAdapter extends BaseExpandableListAdapter {
 //        }
 
     }
-
     /**
      * by moos on 2018/04/20
      * func:添加和展示所有回复
@@ -210,5 +195,4 @@ public class CommentExpandAdapter extends BaseExpandableListAdapter {
 //
 //        notifyDataSetChanged();
     }
-
 }

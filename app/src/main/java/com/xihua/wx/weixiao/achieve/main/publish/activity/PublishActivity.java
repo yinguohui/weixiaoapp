@@ -13,12 +13,16 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.jcodecraeer.xrecyclerview.ProgressStyle;
 import com.jcodecraeer.xrecyclerview.XRecyclerView;
 import com.xihua.wx.weixiao.R;
 import com.xihua.wx.weixiao.achieve.main.publish.adapter.ChangYanAdapter;
-import com.xihua.wx.weixiao.bean.ChangYanResponseBean;
+import com.xihua.wx.weixiao.bean.ApiResult;
+import com.xihua.wx.weixiao.query.TopicQuery;
 import com.xihua.wx.weixiao.utils.OkHttpUtil;
+import com.xihua.wx.weixiao.utils.ToastUtil;
+import com.xihua.wx.weixiao.vo.response.TopicResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,18 +39,21 @@ public class PublishActivity extends AppCompatActivity implements View.OnClickLi
     XRecyclerView xc_publish;
     LinearLayoutManager manager;
     ChangYanAdapter changYanAdapter;
-    List<ChangYanResponseBean.ChangYanResponse> list = new ArrayList<>();
+    Gson gson = new Gson();
+    List<TopicResponse> list = new ArrayList<>();
+    TopicQuery topicQuery = new TopicQuery();
     private Handler handler = new Handler() {
-
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
+                case -1:
+                    ToastUtil.showToast(PublishActivity.this,"服务器开小差了");
+                    break;
                 case 0:
                     break;
                 case 1:
                     changYanAdapter = new ChangYanAdapter(list,PublishActivity.this);
                     xc_publish.setAdapter(changYanAdapter);
-                    xc_publish.refreshComplete();
                     break;
             }
         }
@@ -84,12 +91,21 @@ public class PublishActivity extends AppCompatActivity implements View.OnClickLi
             //刷新
             @Override
             public void onRefresh() {
-                initData();
+                topicQuery.setCurrentPage(1);
+                topicQuery.setPageSize(10);
+                initData(topicQuery);
+                xc_publish.refreshComplete();
             }
             //加载更多
             @Override
             public void onLoadMore() {
-                xc_publish.refreshComplete();
+                if (list.size()==10){
+                    topicQuery.setCurrentPage(topicQuery.getCurrentPage());
+                    initData(topicQuery);
+                    xc_publish.refreshComplete();
+                }else {
+                    xc_publish.refreshComplete();
+                }
             }
         });
         xc_publish.refresh();
@@ -112,49 +128,22 @@ public class PublishActivity extends AppCompatActivity implements View.OnClickLi
                 break;
         }
     }
-    //初始化数据
-    public void initData() {
-        String test = "{\n" +
-                "\t\"code\": 200,\n" +
-                "\t\"page\": 200,\n" +
-                "\t\"total\": 200,\n" +
-                "\t\"list\": [{\n" +
-                "\t\t\"changYanId\": 11212,\n" +
-                "\t\t\"changYanUsername\": \"飒飒\",\n" +
-                "\t\t\"changYanUserImg\": \"https://c-ssl.duitang.com/uploads/people/201708/03/20170803155935_j5Cmx.thumb.36_36_c.jpeg\",\n" +
-                "\t\t\"chanYanTime\": 26111,\n" +
-                "\t\t\"changYanContent\": \"大大反对大师傅\",\n" +
-                "\t\t\"changYanImg\": \"https://c-ssl.duitang.com/uploads/people/201708/03/20170803155935_j5Cmx.thumb.36_36_c.jpeg%https://c-ssl.duitang.com/uploads/people/201708/03/20170803155935_j5Cmx.thumb.36_36_c.jpeg\",\n" +
-                "\t\t\"changyanLike\": 122,\n" +
-                "\t\t\"changYanComment\": 55\n" +
-                "\t}]\n" +
-                "}";
-        Gson gson = new Gson();
-        ChangYanResponseBean bean = gson.fromJson(test,ChangYanResponseBean.class);
-        list = bean.getList();
-        handler.sendEmptyMessage(1);
-    }
-    private void formatData(String result) {
-        Gson gson = new Gson();
-//        PostsListBean postsListBean = gson.fromJson(result,PostsListBean.class);
-//        PostsListBean.Info info = postsListBean.getInfo();
-//        postList = info.getPostList();
-        handler.sendEmptyMessage(1);
 
-    }
-    private void loadmore(){
+    private void initData(TopicQuery topicQuery){
         //okhttp获取数据--
-        //"http://yapi.demo.qunar.com/mock/11910/title?userid="+userid
-        OkHttpUtil.doGet("http://192.168.43.240:8080/title/getalltitle", new Callback(){
+        OkHttpUtil.doPost("http://192.168.43.240:8080/topic/quaryAllTopic",gson.toJson(topicQuery) ,new Callback(){
             @Override
             public void onFailure(Call call, IOException e) {
-
+                handler.sendEmptyMessage(-1);
             }
-
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
-                    Gson gson = new Gson();
+                    ApiResult apiResult = gson.fromJson(response.body().string(),ApiResult.class);
+                    if (apiResult.getCode()==200){
+                        list = gson.fromJson(gson.toJson(apiResult.getData()),new TypeToken<List<TopicResponse>>() {
+                        }.getType());
+                    }
                     handler.sendEmptyMessage(1);
                 }
             }

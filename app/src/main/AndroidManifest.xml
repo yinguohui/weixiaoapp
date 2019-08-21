@@ -36,7 +36,6 @@
         <activity android:name=".achieve.main.info.activity.InfoSuccessActivity"></activity>
         <activity android:name=".achieve.main.lost.activity.LostActivity">
         </activity>
-        <activity android:name=".achieve.main.lost.activity.LostFoundActivity"></activity>
         <activity android:name=".achieve.main.lost.activity.LostPublishActivity"></activity>
         <activity android:name=".achieve.main.publish.activity.PublishActivity"></activity>
         <activity android:name=".androidscreening.ui.ScreeningActivity">
@@ -52,6 +51,21 @@
         <activity android:name=".achieve.login.activity.ForgetActivity"></activity>
         <activity android:name=".achieve.login.activity.RegisterActivity"></activity>
         <activity android:name=".achieve.mine.activity.SettingActivity"></activity>
+        <activity android:name=".achieve.mine.activity.SellingTiemLineActivity"></activity>
+        <activity android:name=".achieve.mine.activity.LostingTiemLineActivity"></activity>
+        <activity android:name=".achieve.mine.activity.SuggestionTiemLineActivity"></activity>
+        <activity android:name=".achieve.mine.activity.DonationTiemLineActivity"></activity>
+        <activity android:name=".achieve.discuss.DiscussActivity"></activity>
+        <activity android:name=".achieve.main.sell.SellBuyDetailActivity"></activity>
+        <activity android:name=".achieve.main.lost.activity.FoundPublishActivity"></activity>
+        <activity android:name=".achieve.main.lost.activity.FoundQueryActivity"></activity>
+        <activity android:name=".achieve.main.lost.activity.LostQueryActivity"></activity>
+        <activity android:name=".achieve.main.donation.activity.DonationDetailActivity"></activity>
+        <activity android:name=".achieve.main.info.activity.MyInfoActivity"></activity>
+        <activity android:name=".achieve.mine.activity.ModifyPasswordActivity"></activity>
+        <activity android:name=".achieve.mine.activity.ModifyHeafImageActivity"></activity>
+        <activity android:name=".achieve.mine.activity.ModifyNameActivity"></activity>
+        <activity android:name=".achieve.mine.activity.ModifySignActivity"></activity>
     </application>
 
 </manifest>

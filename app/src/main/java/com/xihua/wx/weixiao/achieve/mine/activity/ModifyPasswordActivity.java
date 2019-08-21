@@ -13,9 +13,11 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.xihua.wx.weixiao.R;
 import com.xihua.wx.weixiao.bean.ApiResult;
+import com.xihua.wx.weixiao.bean.IdRequest;
 import com.xihua.wx.weixiao.utils.OkHttpUtil;
 import com.xihua.wx.weixiao.utils.SpUtil;
 import com.xihua.wx.weixiao.utils.ToastUtil;
+import com.xihua.wx.weixiao.vo.request.UserRequest;
 import com.xihua.wx.weixiao.vo.response.UserResponse;
 
 import java.io.IOException;
@@ -30,7 +32,7 @@ public class ModifyPasswordActivity extends AppCompatActivity implements View.On
     private ImageView iv_back;
     private TextView tv_modifypassword;
     private EditText et_password;
-    private UserResponse userResult;
+    String data = "";
     Gson gson = new Gson();
     private Map<String,String> map = new HashMap<>();
     private Handler handler = new Handler() {
@@ -44,23 +46,25 @@ public class ModifyPasswordActivity extends AppCompatActivity implements View.On
                 case 2:
                     ToastUtil.showToast(ModifyPasswordActivity.this,"修改失败");
                     break;
+                case 3:
+                    fromresult(data);
+                    break;
             }
         }
     };
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_modifypassword);
+        setContentView(R.layout.activity_modifypassword);
         init();
     }
     private void init(){
         iv_back = findViewById(R.id.iv_back);
-        //tv_modifypassword = findViewById(R.id.tv_modifypassword);
-        //et_password = findViewById(R.id.modifypassword);
+        tv_modifypassword = findViewById(R.id.tv_modifypassword);
+        et_password = findViewById(R.id.modifypassword);
 
         iv_back.setOnClickListener(this);
         tv_modifypassword.setOnClickListener(this);
-        map.put("userId",SpUtil.getString(ModifyPasswordActivity.this,"userid",""));
     }
 
     @Override
@@ -69,18 +73,17 @@ public class ModifyPasswordActivity extends AppCompatActivity implements View.On
             case R.id.iv_back:
                 finish();
                 break;
-//            case R.id.tv_modifypassword:
-//                map.put("userPassword",et_password.getText().toString());
-//                if (map.get("userPassword").equals("")||map.get("userPassword").length()>16){
-//                    ToastUtil.showToast(ModifyPasswordActivity.this,"密码不能为空或长度大于16");
-//                    return;
-//                }
-//                modifypassword(map);
-//                break;
+            case R.id.tv_modifypassword:
+                modifypassword();
+                break;
         }
     }
-    private void modifypassword(Map<String,String> data){
-        OkHttpUtil.doPost("http://192.168.43.240:8080/user/updateuserpasswordByuser", data , new Callback() {
+    private void modifypassword(){
+        String id= SpUtil.getString(ModifyPasswordActivity.this, "userid", "-1");
+        UserRequest userResponse = new UserRequest();
+        userResponse.setUserName(et_password.getText().toString());
+        userResponse.setUserId(Integer.parseInt(id));
+        OkHttpUtil.doPost("http://192.168.43.240:8080/user/updateuserinfo", gson.toJson(userResponse) , new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
@@ -89,21 +92,13 @@ public class ModifyPasswordActivity extends AppCompatActivity implements View.On
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()){
-                    fromresult(response.body().string());
+                    data = response.body().string();
+                   handler.sendEmptyMessage(3);
                 }
             }
         });
     }
 
-    private void fromdata(String data){
-        ApiResult apiResult = gson.fromJson(data,ApiResult.class);
-        if (apiResult.getCode()==200){
-            userResult = gson.fromJson(gson.toJson(apiResult),UserResponse.class);
-            handler.sendEmptyMessage(1);
-        }else {
-            handler.sendEmptyMessage(-1);
-        }
-    }
     private void  fromresult(String data){
         ApiResult apiResult = gson.fromJson(data,ApiResult.class);
         if (apiResult.getCode()==200){

@@ -13,9 +13,11 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.xihua.wx.weixiao.R;
 import com.xihua.wx.weixiao.bean.ApiResult;
+import com.xihua.wx.weixiao.bean.IdRequest;
 import com.xihua.wx.weixiao.utils.OkHttpUtil;
 import com.xihua.wx.weixiao.utils.SpUtil;
 import com.xihua.wx.weixiao.utils.ToastUtil;
+import com.xihua.wx.weixiao.vo.request.UserRequest;
 import com.xihua.wx.weixiao.vo.response.UserResponse;
 
 import java.io.IOException;
@@ -30,8 +32,8 @@ public class ModifyNameActivity extends AppCompatActivity implements View.OnClic
     private ImageView iv_back;
     private TextView tv_modifyname;
     private EditText et_name;
-    private String et_newname;
     private UserResponse userResult;
+    String data="";
     Gson gson = new Gson();
     private Map<String,String> map = new HashMap<>();
 
@@ -43,23 +45,25 @@ public class ModifyNameActivity extends AppCompatActivity implements View.OnClic
                 case 1:
                     et_name.setText(userResult.getUserName());
                     break;
+                case 2:
+                    fromresult(data);
+                    break;
             }
         }
     };
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_modifyname);
+        setContentView(R.layout.activity_modifyname);
         init();
     }
     private void init(){
         iv_back = findViewById(R.id.iv_back);
-        //tv_modifyname = findViewById(R.id.modifyname);
-        //et_name = findViewById(R.id.et_name);
+        tv_modifyname = findViewById(R.id.modifyname);
+        et_name = findViewById(R.id.et_name);
 
         iv_back.setOnClickListener(this);
         tv_modifyname.setOnClickListener(this);
-        map.put("userId",SpUtil.getString(ModifyNameActivity.this,"userid",""));
     }
 
     @Override
@@ -68,18 +72,17 @@ public class ModifyNameActivity extends AppCompatActivity implements View.OnClic
             case R.id.iv_back:
                 finish();
                 break;
-//            case R.id.modifyname:
-//                map.put("userName",et_name.getText().toString());
-//                if (map.get("userName").equals("")||map.get("userName").length()>10){
-//                    ToastUtil.showToast(ModifyNameActivity.this,"用户名不能为空或长度大于10");
-//                    return;
-//                }
-//                modifyname(map);
-//                break;
+            case R.id.modifyname:
+                modifyname();
+                break;
         }
     }
-    private void modifyname(Map<String,String> data){
-        OkHttpUtil.doPost("http://192.168.43.240:8080/user/updateuserinfo", data , new Callback() {
+    private void modifyname(){
+        String id= SpUtil.getString(ModifyNameActivity.this, "userid", "-1");
+        UserRequest userResponse = new UserRequest();
+        userResponse.setUserName(et_name.getText().toString());
+        userResponse.setUserId(Integer.parseInt(id));
+        OkHttpUtil.doPost("http://192.168.43.240:8080/user/updateuserinfo", gson.toJson(userResponse) , new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                     e.printStackTrace();
@@ -88,7 +91,8 @@ public class ModifyNameActivity extends AppCompatActivity implements View.OnClic
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()){
-                    fromresult(response.body().string());
+                   data = response.body().string();
+                   handler.sendEmptyMessage(2);
                 }
             }
         });
@@ -97,7 +101,10 @@ public class ModifyNameActivity extends AppCompatActivity implements View.OnClic
     @Override
     protected void onResume() {
         super.onResume();
-        OkHttpUtil.doGet("http://192.168.43.240:8080/user/userinfo?user_id="+map.get("userId"), new Callback() {
+        IdRequest idRequest = new IdRequest();
+        String id  =SpUtil.getString(ModifyNameActivity.this, "userid", "-1");
+        idRequest.setId(Integer.parseInt(id));
+        OkHttpUtil.doPost("http://192.168.43.240:8080/user/getuserinfobyid",gson.toJson(idRequest) ,new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
@@ -115,7 +122,7 @@ public class ModifyNameActivity extends AppCompatActivity implements View.OnClic
     private void fromdata(String data){
         ApiResult apiResult = gson.fromJson(data,ApiResult.class);
         if (apiResult.getCode()==200){
-            userResult = gson.fromJson(gson.toJson(apiResult),UserResponse.class);
+            userResult = gson.fromJson(gson.toJson(apiResult.getData()),UserResponse.class);
             handler.sendEmptyMessage(1);
         }else {
             handler.sendEmptyMessage(-1);

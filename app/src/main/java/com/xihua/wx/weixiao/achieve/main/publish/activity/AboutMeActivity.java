@@ -10,24 +10,39 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.jcodecraeer.xrecyclerview.ProgressStyle;
 import com.jcodecraeer.xrecyclerview.XRecyclerView;
 import com.xihua.wx.weixiao.R;
 import com.xihua.wx.weixiao.achieve.main.publish.adapter.AboutMeAdapter;
 import com.xihua.wx.weixiao.achieve.main.sell.SellBuyActivity;
 import com.xihua.wx.weixiao.achieve.main.sell.adapter.GoodsAdapter;
+import com.xihua.wx.weixiao.bean.ApiResult;
+import com.xihua.wx.weixiao.bean.IdRequest;
 import com.xihua.wx.weixiao.bean.LikeMessageList;
+import com.xihua.wx.weixiao.utils.OkHttpUtil;
+import com.xihua.wx.weixiao.utils.SpUtil;
+import com.xihua.wx.weixiao.utils.ToastUtil;
+import com.xihua.wx.weixiao.vo.response.MineReviewResponse;
+import com.xihua.wx.weixiao.vo.response.TopicTimeLine;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 //关于我的
 
 public class AboutMeActivity extends AppCompatActivity implements View.OnClickListener {
     ImageView iv_back;
     XRecyclerView xw_about;
-    List<LikeMessageList.LikeMessageBean> likeMessageBeans;
+    List<MineReviewResponse> list = new ArrayList<>();
     AboutMeAdapter aboutMeAdapter;
     LinearLayoutManager manager;
+    Gson gson = new Gson();
     private Handler handler = new Handler() {
 
         @Override
@@ -36,7 +51,7 @@ public class AboutMeActivity extends AppCompatActivity implements View.OnClickLi
                 case 0:
                     break;
                 case 1:
-                    aboutMeAdapter = new AboutMeAdapter(likeMessageBeans,AboutMeActivity.this);
+                    aboutMeAdapter = new AboutMeAdapter(list,AboutMeActivity.this);
                     xw_about.setAdapter(aboutMeAdapter);
                     xw_about.refreshComplete();
                     break;
@@ -54,30 +69,6 @@ public class AboutMeActivity extends AppCompatActivity implements View.OnClickLi
         xw_about =findViewById(R.id.xw_about);
 
         iv_back.setOnClickListener(this);
-        String test ="{\n" +
-                "\t\"code\": 200,\n" +
-                "\t\"page\": 11,\n" +
-                "\t\"list\": [{\n" +
-                "\t\t\"likeDetailId\": 1111,\n" +
-                "\t\t\"userId\": 11111,\n" +
-                "\t\t\"userName\": \"画虎\",\n" +
-                "\t\t\"userImg\": \"\",\n" +
-                "\t\t\"createTime\": 11212,\n" +
-                "\t\t\"topicId\": 1111,\n" +
-                "\t\t\"topicImg\": \"\",\n" +
-                "\t\t\"topicContent\": \"你啥的哈\"\n" +
-                "\t}, {\n" +
-                "\t\t\"likeDetailId\": 1111,\n" +
-                "\t\t\"userId\": 11111,\n" +
-                "\t\t\"userName\": \"画虎\",\n" +
-                "\t\t\"userImg\": \"\",\n" +
-                "\t\t\"createTime\": 11212,\n" +
-                "\t\t\"topicId\": 1111,\n" +
-                "\t\t\"topicImg\": \"\",\n" +
-                "\t\t\"topicContent\": \"你啥的哈\"\n" +
-                "\t}]\n" +
-                "\n" +
-                "}";
 
         manager = new LinearLayoutManager(this);
         xw_about.setLayoutManager(manager);
@@ -92,7 +83,8 @@ public class AboutMeActivity extends AppCompatActivity implements View.OnClickLi
         xw_about.setLoadingListener(new XRecyclerView.LoadingListener() {
             //刷新
             @Override
-            public void onRefresh(){
+            public void onRefresh() {
+                initData();
             }
             //加载更多
             @Override
@@ -101,10 +93,6 @@ public class AboutMeActivity extends AppCompatActivity implements View.OnClickLi
             }
         });
         xw_about.refresh();
-        Gson gson = new Gson();
-        LikeMessageList likeMessageList = gson.fromJson(test,LikeMessageList.class);
-        likeMessageBeans = likeMessageList.getList();
-        handler.sendEmptyMessage(1);
 
     }
 
@@ -115,5 +103,32 @@ public class AboutMeActivity extends AppCompatActivity implements View.OnClickLi
                 finish();
                 break;
         }
+    }
+    private void initData(){
+        String id = SpUtil.getString(AboutMeActivity.this, "userid", "-1");
+        if ("-1".equals(id)){
+            ToastUtil.showToast(AboutMeActivity.this,"请登录");
+            return;
+        }
+        IdRequest idRequest = new IdRequest();
+        idRequest.setId(Integer.parseInt(id));
+        OkHttpUtil.doPost("http://192.168.43.240:8080/review/getinemreview",gson.toJson(idRequest) ,new Callback(){
+            @Override
+            public void onFailure(Call call, IOException e) {
+                handler.sendEmptyMessage(-1);
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    ApiResult apiResult = gson.fromJson(response.body().string(),ApiResult.class);
+                    if (apiResult.getCode()==200){
+                        list = gson.fromJson(gson.toJson(apiResult.getData()),new TypeToken<List<MineReviewResponse>>(){}.getType());
+                        handler.sendEmptyMessage(1);
+                    }else {
+                        handler.sendEmptyMessage(0);
+                    }
+                }
+            }
+        });
     }
 }

@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -13,10 +15,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -25,22 +26,47 @@ import com.luck.picture.lib.permissions.RxPermissions;
 import com.luck.picture.lib.tools.PictureFileUtils;
 import com.xihua.wx.weixiao.R;
 import com.xihua.wx.weixiao.achieve.main.adapter.GridImageAdapter;
-import com.xihua.wx.weixiao.achieve.main.lost.activity.LostFoundActivity;
+import com.xihua.wx.weixiao.bean.ApiResult;
+import com.xihua.wx.weixiao.utils.MapUtil;
+import com.xihua.wx.weixiao.utils.OkHttpUtil;
+import com.xihua.wx.weixiao.utils.SpUtil;
+import com.xihua.wx.weixiao.utils.ToastUtil;
+import com.xihua.wx.weixiao.vo.request.TopicRequest;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class PublishContentActivity extends AppCompatActivity implements View.OnClickListener {
     ImageView iv_back;
     EditText et_content;
     Button bt_changyan_commit;
     private List<LocalMedia> selectList = new ArrayList<>();
+    Gson gson = new Gson();
     private RecyclerView recyclerView;
     private GridImageAdapter adapter;
+    private List<String> stringList = new ArrayList<>();
+    private Handler handler = new Handler() {
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case 0:
+                    ToastUtil.showToast(PublishContentActivity.this,"网络错误");
+                    break;
+                case 1:
+                    ToastUtil.showToast(PublishContentActivity.this,"发布成功");
+                    break;
+            }
+        }
+    };
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,7 +75,7 @@ public class PublishContentActivity extends AppCompatActivity implements View.On
     }
     private void init(){
         iv_back = findViewById(R.id.iv_back);
-        et_content = findViewById(R.id.et_info);
+        et_content = findViewById(R.id.et_content);
         bt_changyan_commit = findViewById(R.id.bt_changyan_commit);
         initimage();
 
@@ -59,16 +85,44 @@ public class PublishContentActivity extends AppCompatActivity implements View.On
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.iv_back:
                 finish();
                 break;
+            case R.id.bt_changyan_commit:
+                TopicRequest request = new TopicRequest();
+                String id = SpUtil.getString(PublishContentActivity.this, "userid", "-1");
+                if ("-1".equals(id)){
+                    ToastUtil.showToast(PublishContentActivity.this,"请登录");
+                    return;
+                }
+                request.setTopicUserId(Integer.parseInt(id));
+                request.setTopicContent(et_content.getText().toString());
+                commit(request);
+                break;
         }
+
 
     }
 
-    private void commit(){
+    private void commit(TopicRequest request){
+        OkHttpUtil.uploadmany("http://192.168.43.240:8080/topic/add", MapUtil.objectToMap(request),stringList,new Callback(){
+            @Override
+            public void onFailure(Call call, IOException e) {
+                ToastUtil.showToast(PublishContentActivity.this,"网络连接问题");
+            }
 
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    ApiResult apiResult = gson.fromJson(response.body().string(),ApiResult.class);
+                    if (apiResult.getCode()==200){
+                        handler.sendEmptyMessage(1);
+                        finish();
+                    }
+                }
+            }
+        });
     }
     private void initimage(){
         recyclerView = findViewById(R.id.recycler);
@@ -227,6 +281,7 @@ public class PublishContentActivity extends AppCompatActivity implements View.On
                         // 3.media.getCompressPath();为压缩后path，需判断media.isCompressed();是否为true
                         // 如果裁剪并压缩了，已取压缩路径为准，因为是先裁剪后压缩的
                         for (LocalMedia media : selectList) {
+                            stringList.add(media.getCompressPath());
                             Log.i("图片-----》", media.getPath());
                         }
                         adapter.setList(selectList);
@@ -249,4 +304,5 @@ public class PublishContentActivity extends AppCompatActivity implements View.On
             }
             return path;
         }
+
 }

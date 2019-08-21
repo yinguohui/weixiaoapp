@@ -83,13 +83,13 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="20dp"
-                    android:text="已出售物品"
+                    android:text="出售物品"
                     android:textColor="@color/colorBig"
                     android:textSize="15sp" />
 
             </RelativeLayout>
             <RelativeLayout
-                android:id="@+id/rl_sellinggoods"
+                android:id="@+id/rl_topic"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginTop="5dp"
@@ -108,7 +108,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="20dp"
-                    android:text="未出售物品"
+                    android:text="我的主题"
                     android:textColor="@color/colorBig"
                     android:textSize="15sp" />
 

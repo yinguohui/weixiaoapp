@@ -21,6 +21,7 @@ import com.xihua.wx.weixiao.utils.ToastUtil;
 import com.xihua.wx.weixiao.utils.VerificationUtils;
 import com.xihua.wx.weixiao.vo.request.LoginRequest;
 import com.xihua.wx.weixiao.vo.response.IdrResponse;
+import com.xihua.wx.weixiao.vo.response.UserResponse;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -117,11 +118,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private void success(String data) {
         ApiResult<IdrResponse> userResult = gson.fromJson(data, ApiResult.class);
-        IdrResponse idrResponse =  gson.fromJson(gson.toJson(userResult.getData()),IdrResponse.class);
+        UserResponse idrResponse =  gson.fromJson(gson.toJson(userResult.getData()),UserResponse.class);
         if (userResult.getCode()==200){
             handler.sendEmptyMessage(1);
-            SpUtil.putBoolean(LoginActivity.this,"isLogin",true);
-            SpUtil.putString(LoginActivity.this, "userid", String.valueOf(idrResponse.getId()));
+            SpUtil.putString(LoginActivity.this, "userid", String.valueOf(idrResponse.getUserId()));
+            SpUtil.putString(LoginActivity.this, "userimg", String.valueOf(idrResponse.getUserImg()));
+            SpUtil.putString(LoginActivity.this, "username", String.valueOf(idrResponse.getUserName()));
             finish();
             startActivity(new Intent(LoginActivity.this,MainActivity.class));
         }else {

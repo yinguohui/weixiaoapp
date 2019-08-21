@@ -1,205 +1,300 @@
 package com.xihua.wx.weixiao.achieve.mine.activity;
 
 import android.Manifest;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
-import android.support.annotation.NonNull;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
-import com.xihua.wx.weixiao.utils.ImageUtils;
+import com.google.gson.Gson;
+import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.config.PictureConfig;
+import com.luck.picture.lib.config.PictureMimeType;
+import com.luck.picture.lib.entity.LocalMedia;
+import com.luck.picture.lib.permissions.RxPermissions;
+import com.luck.picture.lib.tools.PictureFileUtils;
+import com.xihua.wx.weixiao.R;
+import com.xihua.wx.weixiao.achieve.main.adapter.GridImageAdapter;
+import com.xihua.wx.weixiao.bean.ApiResult;
 import com.xihua.wx.weixiao.utils.OkHttpUtil;
 import com.xihua.wx.weixiao.utils.SpUtil;
+import com.xihua.wx.weixiao.utils.ToastUtil;
+import com.xihua.wx.weixiao.utils.VolleyUtils;
+import com.xihua.wx.weixiao.utils.image.CircleNetworkImageImage;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class ModifyHeafImageActivity extends AppCompatActivity {
-    protected static final int CHOOSE_PICTURE = 0;
-    protected static final int TAKE_PICTURE = 1;
-    private static final int CROP_SMALL_PICTURE = 2;
-    protected static Uri tempUri;
-    private ImageView iv_personal_icon;
-
+public class ModifyHeafImageActivity extends AppCompatActivity implements View.OnClickListener{
+    private int maxSelectNum = 1;
+    RecyclerView recyclerView;
+    private GridImageAdapter adapter;
+    private List<String> stringList = new ArrayList<>();
+    private List<LocalMedia> selectList = new ArrayList<>();
+    private Gson gson = new Gson();
+    private Button btn_change;
+    private ImageView iv_back;
+    CircleNetworkImageImage iv_personal_icon;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_modifyheadimage);
-//        iv_personal_icon = (ImageView) findViewById(R.id.iv_personal_icon);
+        setContentView(R.layout.activity_modifyheadimage);
+        initimage();
     }
 
-    /**
-     * 显示修改头像的对话框
-     */
-    public void showChoosePicDialog(View v) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("设置头像");
-        String[] items = {"选择本地照片"};
-        builder.setNegativeButton("取消", null);
-        builder.setItems(items, new DialogInterface.OnClickListener() {
-
+    private void initimage() {
+        iv_personal_icon = findViewById(R.id.iv_personal_icon);
+        iv_back = findViewById(R.id.iv_back);
+        iv_back.setOnClickListener(this);
+        btn_change = findViewById(R.id.btn_change);
+        btn_change.setOnClickListener(this);
+        recyclerView = findViewById(R.id.recycler);
+        GridLayoutManager manager = new GridLayoutManager(ModifyHeafImageActivity.this, 3, GridLayoutManager.VERTICAL, false);
+        recyclerView.setLayoutManager(manager);
+        adapter = new GridImageAdapter(ModifyHeafImageActivity.this, onAddPicClickListener);
+        adapter.setList(selectList);
+        adapter.setSelectMax(maxSelectNum);
+        recyclerView.setAdapter(adapter);
+        adapter.setOnItemClickListener(new GridImageAdapter.OnItemClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case CHOOSE_PICTURE: // 选择本地照片
-                        Intent openAlbumIntent = new Intent(
-                                Intent.ACTION_GET_CONTENT);
-                        openAlbumIntent.setType("image/*");
-                        startActivityForResult(openAlbumIntent, CHOOSE_PICTURE);
-                        break;
-//                    case TAKE_PICTURE: // 拍照
-//                        takePicture();
-//                        break;
+            public void onItemClick(int position, View v) {
+                if (selectList.size() > 0) {
+                    LocalMedia media = selectList.get(position);
+                    String pictureType = media.getPictureType();
+                    int mediaType = PictureMimeType.pictureToVideo(pictureType);
+                    switch (mediaType) {
+                        case 1:
+                            // 预览图片 可自定长按保存路径
+                            //PictureSelector.create(MainActivity.this).themeStyle(themeId).externalPicturePreview(position, "/custom_file", selectList);
+                            PictureSelector.create(ModifyHeafImageActivity.this).themeStyle(R.style.picture_QQ_style).openExternalPreview(position, selectList);
+                            break;
+                    }
                 }
             }
         });
-        builder.create().show();
+
+        // 清空图片缓存，包括裁剪、压缩后的图片 注意:必须要在上传完成后调用 必须要获取权限
+        RxPermissions permissions = new RxPermissions(this);
+        permissions.request(Manifest.permission.WRITE_EXTERNAL_STORAGE).subscribe(new Observer<Boolean>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+            }
+
+            @Override
+            public void onNext(Boolean aBoolean) {
+                if (aBoolean) {
+                    PictureFileUtils.deleteCacheDirFile(ModifyHeafImageActivity.this);
+                } else {
+                    Toast.makeText(ModifyHeafImageActivity.this,
+                            getString(R.string.picture_jurisdiction), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+            }
+
+            @Override
+            public void onComplete() {
+            }
+        });
     }
 
-//    private void takePicture() {
-////        String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
-////        if (Build.VERSION.SDK_INT >= 23) {
-//            // 需要申请动态权限
-////            int check = ContextCompat.checkSelfPermission(this, permissions[0]);
-////            // 权限是否已经 授权 GRANTED---授权  DINIED---拒绝
-////            if (check != PackageManager.PERMISSION_GRANTED) {
-////                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-////            }
-////        }
-//        Intent openCameraIntent = new Intent(
-//                MediaStore.ACTION_IMAGE_CAPTURE);
-//        File file = new File(Environment
-//                .getExternalStorageDirectory(), "image.jpg");
-//        //判断是否是AndroidN以及更高的版本
-//        if (Build.VERSION.SDK_INT >= 24) {
-//            openCameraIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-//            tempUri = FileProvider.getUriForFile(ModifyHeafImageActivity.this, "com.example.ygh.app.fileprovider", file);
-//        } else {
-//            tempUri = Uri.fromFile(new File(Environment
-//                    .getExternalStorageDirectory(), "image.jpg"));
-//        }
-//        // 指定照片保存路径（SD卡），image.jpg为一个临时文件，每次拍照后这个图片都会被替换
-//        openCameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, tempUri);
-//        startActivityForResult(openCameraIntent, TAKE_PICTURE);
-//    }
+    private GridImageAdapter.onAddPicClickListener onAddPicClickListener = new GridImageAdapter.onAddPicClickListener() {
+        @Override
+        public void onAddPicClick() {
+            //相册or单独拍照
+            if (true) {
+                // 进入相册 以下是例子：不需要的api可以不写
+                PictureSelector.create(ModifyHeafImageActivity.this)
+                        .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()、音频.ofAudio()
+                        .theme(R.style.picture_QQ_style)// 主题样式设置 具体参考 values/styles   用法：R.style.picture.white.style
+                        .maxSelectNum(maxSelectNum)// 最大图片选择数量
+                        .minSelectNum(1)// 最小选择数量
+                        .imageSpanCount(3)// 每行显示个数
+                        //PictureConfig.MULTIPLE : PictureConfig.SINGLE)// 多选 or 单选
+                        .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选
+                        // 是否可预览图片
+                        .previewImage(true)// 是否可预览图片
+                        //.previewVideo(false)// 是否可预览视频
+                        //.enablePreviewAudio(false) // 是否可播放音频
+                        //是否显示拍照按钮
+                        .isCamera(true)// 是否显示拍照按钮
+                        .isZoomAnim(true)// 图片列表点击 缩放效果 默认true
+                        //.imageFormat(PictureMimeType.PNG)// 拍照保存图片格式后缀,默认jpeg
+                        //.setOutputCameraPath("/CustomPath")// 自定义拍照保存路径
+                        .enableCrop(false)// 是否裁剪
+                        .compress(true)// 是否压缩
+                        //.synOrAsy(true)//同步true或异步false 压缩 默认同步
+                        //.compressSavePath(getPath())//压缩图片保存地址
+                        //.sizeMultiplier(0.5f)// glide 加载图片大小 0~1之间 如设置 .glideOverride()无效
+                        .glideOverride(160, 160)// glide 加载宽高，越小图片列表越流畅，但会影响列表图片浏览的清晰度
+                        .withAspectRatio(1, 1)// 裁剪比例 如16:9 3:2 3:4 1:1 可自定义
+                        .hideBottomControls(true)// 是否显示uCrop工具栏，默认不显示
+                        // 是否显示gif图片
+                        //.isGif(false)// 是否显示gif图片
+                        //.freeStyleCropEnabled(true)// 裁剪框是否可拖拽
+                        //.circleDimmedLayer(false)// 是否圆形裁剪
+                        //.showCropFrame(true)// 是否显示裁剪矩形边框 圆形裁剪时建议设为false
+                        //.showCropGrid(true)// 是否显示裁剪矩形网格 圆形裁剪时建议设为false
+                        .openClickSound(true)// 是否开启点击声音
+                        .selectionMedia(selectList)// 是否传入已选图片
+                        .minimumCompressSize(100)// 小于100kb的图片不压缩
+                        .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
+            } else {
+                // 单独拍照
+                PictureSelector.create(ModifyHeafImageActivity.this)
+                        .openCamera(PictureMimeType.ofImage())// 单独拍照，也可录像或也可音频 看你传入的类型是图片or视频
+                        .theme(R.style.picture_QQ_style)// 主题样式设置 具体参考 values/styles
+                        .selectionMode(PictureConfig.SINGLE)// 多选 or 单选
+                        .previewImage(true)// 是否可预览图片
+                        .previewVideo(false)// 是否可预览视频
+                        .enablePreviewAudio(false) // 是否可播放音频
+                        .isCamera(true)// 是否显示拍照按钮
+                        .enableCrop(false)// 是否裁剪
+                        .compress(true)// 是否压缩
+                        .glideOverride(160, 160)// glide 加载宽高，越小图片列表越流畅，但会影响列表图片浏览的清晰度
+                        .withAspectRatio(1, 1)// 裁剪比例 如16:9 3:2 3:4 1:1 可自定义
+                        .hideBottomControls(true)// 是否显示uCrop工具栏，默认不显示
+                        .isGif(false)// 是否显示gif图片
+                        .freeStyleCropEnabled(false)// 裁剪框是否可拖拽
+                        .circleDimmedLayer(false)// 是否圆形裁剪
+                        .showCropFrame(false)// 是否显示裁剪矩形边框 圆形裁剪时建议设为false
+                        .showCropGrid(false)// 是否显示裁剪矩形网格 圆形裁剪时建议设为false
+                        .openClickSound(true)// 是否开启点击声音
+                        .selectionMedia(selectList)// 是否传入已选图片
+                        .previewEggs(false)//预览图片时 是否增强左右滑动图片体验(图片滑动一半即可看到上一张是否选中)
+                        //.previewEggs(false)// 预览图片时 是否增强左右滑动图片体验(图片滑动一半即可看到上一张是否选中)
+                        //.cropCompressQuality(90)// 裁剪压缩质量 默认为100
+                        .minimumCompressSize(100)// 小于100kb的图片不压缩
+                        //.cropWH()// 裁剪宽高比，设置如果大于图片本身宽高则无效
+                        //.rotateEnabled() // 裁剪是否可旋转图片
+                        //.scaleEnabled()// 裁剪是否可放大缩小图片
+                        //.videoQuality()// 视频录制质量 0 or 1
+                        //.videoSecond()////显示多少秒以内的视频or音频也可适用
+                        .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
+            }
+        }
 
-    //activity回调
+    };
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) { // 如果返回码是可以用的
+        if (resultCode == RESULT_OK) {
             switch (requestCode) {
-                case TAKE_PICTURE:
-                    startPhotoZoom(tempUri); // 开始对图片进行裁剪处理
-                    break;
-                case CHOOSE_PICTURE:
-                    startPhotoZoom(data.getData()); // 开始对图片进行裁剪处理
-                    break;
-                case CROP_SMALL_PICTURE:
-                    if (data != null) {
-                        setImageToView(data); // 让刚才选择裁剪得到的图片显示在界面上
+                case PictureConfig.CHOOSE_REQUEST:
+                    selectList = PictureSelector.obtainMultipleResult(data);
+                    for (LocalMedia media : selectList) {
+                        stringList.add(media.getCompressPath());
+                        Log.i("图片-----》", media.getPath());
                     }
+                    adapter.setList(selectList);
+                    adapter.notifyDataSetChanged();
                     break;
             }
         }
     }
 
     /**
-     * 裁剪图片方法实现
+     * 自定义压缩存储地址
      *
-     * @param uri
+     * @return
      */
-    protected void startPhotoZoom(Uri uri) {
-        if (uri == null) {
-            Log.i("tag", "The uri is not exist.");
+    private String getPath() {
+        String path = Environment.getExternalStorageDirectory() + "/Luban/image/";
+        File file = new File(path);
+        if (file.mkdirs()) {
+            return path;
         }
-        tempUri = uri;
-        Intent intent = new Intent("com.android.camera.action.CROP");
-        intent.setDataAndType(uri, "image/*");
-        // 设置裁剪
-        intent.putExtra("crop", "true");
-        // aspectX aspectY 是宽高的比例
-        intent.putExtra("aspectX", 1);
-        intent.putExtra("aspectY", 1);
-        // outputX outputY 是裁剪图片宽高
-        intent.putExtra("outputX", 150);
-        intent.putExtra("outputY", 150);
-        intent.putExtra("return-data", true);
-        startActivityForResult(intent, CROP_SMALL_PICTURE);
+        return path;
     }
 
-    /**
-     * 保存裁剪之后的图片数据
-     *
-     * @param
-     */
-    protected void setImageToView(Intent data) {
-        Bundle extras = data.getExtras();
-        if (extras != null) {
-            Bitmap photo = extras.getParcelable("data");
-            Log.d("", "setImageToView:" + photo);
-            photo = ImageUtils.toRoundBitmap(photo); // 这个时候的图片已经被处理成圆形的了
-            iv_personal_icon.setImageBitmap(photo);
-            uploadPic(photo);
+    private void infocommit() {
+        if (stringList.size()<=0){
+            handler.sendEmptyMessage(0);
+            return;
         }
-    }
+        String userid = SpUtil.getString(ModifyHeafImageActivity.this, "userid", "-1");
+        if ("-1".equals(userid)) {
+            ToastUtil.showToast(ModifyHeafImageActivity.this, "请登录");
+            return;
+        }
+        OkHttpUtil.upload("http://192.168.43.240:8080/user/headimg", stringList.get(0), "create", userid, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                handler.sendEmptyMessage(-1);
+            }
 
-    //上传
-    private void uploadPic(Bitmap bitmap) {
-        // 上传至服务器
-        // ... 可以在这里把Bitmap转换成file，然后得到file的url，做文件上传操作
-        // 注意这里得到的图片已经是圆形图片了
-        // bitmap是没有做个圆形处理的，但已经被裁剪了
-        String imagePath = ImageUtils.savePhoto(bitmap, Environment
-                .getExternalStorageDirectory().getAbsolutePath(), String
-                .valueOf(System.currentTimeMillis()));
-        Log.e("imagePath", imagePath + "");
-        if (imagePath != null) {
-            String userid = SpUtil.getString(ModifyHeafImageActivity.this, "userid", "");
-            // 拿着imagePath上传了
-            OkHttpUtil.upload("http://192.168.43.240:8080/user/headimgup", imagePath, "create", userid, new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    e.printStackTrace();
-
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    ApiResult apiResult = gson.fromJson(response.body().string(), ApiResult.class);
+                    if (apiResult.getCode() == 200) {
+                        handler.sendEmptyMessage(1);
+                        finish();
+                    }
                 }
-
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-
-                }
-            });
-            // ...
-            Log.d("", "imagePath:" + imagePath);
-        }
+            }
+        });
     }
 
-    //@Override
-//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-//                                           @NonNull int[] grantResults) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        if (requestCode == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//
-//        } else {
-//            // 没有获取 到权限，从新请求，或者关闭app
-//            Toast.makeText(this, "需要存储权限", Toast.LENGTH_SHORT).show();
-//        }
-//    }
-//}
+    private Handler handler = new Handler() {
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case -1:
+                    ToastUtil.showToast(ModifyHeafImageActivity.this, "服务器开小差了");
+                    break;
+                case 0:
+                    ToastUtil.showToast(ModifyHeafImageActivity.this, "请选择图片");
+                    break;
+                case 1:
+                    ToastUtil.showToast(ModifyHeafImageActivity.this, "发布成功");
+                    break;
+            }
+        }
+    };
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()){
+            case R.id.btn_change:
+                infocommit();
+                break;
+            case R.id.iv_back:
+                finish();
+                break;
+        }
+    }
+    @Override
+    public void onResume() {
+        String id = SpUtil.getString(ModifyHeafImageActivity.this, "userid", "-1");
+        String img= SpUtil.getString(ModifyHeafImageActivity.this, "userimg", "-1");
+        if ("-1".equals(id)){
+            return;
+        }else {
+            VolleyUtils.loadImage(ModifyHeafImageActivity.this,iv_personal_icon,img);
+        }
+        super.onResume();
+    }
 }

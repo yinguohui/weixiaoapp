@@ -16,15 +16,16 @@ import com.xihua.wx.weixiao.R;
 import com.xihua.wx.weixiao.achieve.main.lost.activity.LostInfoDetailActivity;
 import com.xihua.wx.weixiao.bean.GoodsResponseBean;
 import com.xihua.wx.weixiao.bean.LostinfoList;
+import com.xihua.wx.weixiao.vo.response.LostinfoResponse;
 
 import java.util.List;
 
 public class LostInfoAdapter extends XRecyclerView.Adapter{
     private Context context;
-    private List<LostinfoList.LostinfoBean> list;
+    private List<LostinfoResponse> list;
 
 
-    public LostInfoAdapter(List<LostinfoList.LostinfoBean> list, Context context) {
+    public LostInfoAdapter(List<LostinfoResponse> list, Context context) {
         this.context = context;
         this.list = list;
     }
@@ -38,15 +39,17 @@ public class LostInfoAdapter extends XRecyclerView.Adapter{
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         if (holder instanceof ViewHolder) {
-            LostinfoList.LostinfoBean bean = list.get(position);
-            Glide.with(context).load(bean.getLostinfoImg().split("$")[0]).into(((ViewHolder) holder).iv_lostinfo_img);
-            ((ViewHolder) holder).tv_name.setText(bean.getLostinfoImg());
-            ((ViewHolder) holder).tv_time.setText(bean.getLostinfoTime()+"");
+            final LostinfoResponse bean = list.get(position);
+            Glide.with(context).load(bean.getLostinfoImg().split("$%")[0]).into(((ViewHolder) holder).iv_lostinfo_img);
+            ((ViewHolder) holder).tv_name.setText(bean.getUser().getUserName());
+            ((ViewHolder) holder).tv_time.setText(bean.getLostinfoCreateTime()+"");
             ((ViewHolder) holder).tv_description.setText(bean.getLostinfoDescription());
-            ((ViewHolder) holder).tv_description.setOnClickListener(new View.OnClickListener() {
+            ((ViewHolder) holder).ll_lostinfo.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v) {
-                    context.startActivity(new Intent(context,LostInfoDetailActivity.class));
+                public void onClick(View view) {
+                    Intent intent = new Intent(context,LostInfoDetailActivity.class);
+                    intent.putExtra("lost_id",bean.getLostinfoId());
+                    context.startActivity(intent);
                 }
             });
         }

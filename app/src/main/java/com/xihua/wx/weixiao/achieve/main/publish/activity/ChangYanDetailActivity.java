@@ -1,6 +1,7 @@
 package com.xihua.wx.weixiao.achieve.main.publish.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,21 +21,33 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.jaeger.ninegridimageview.NineGridImageView;
 import com.jaeger.ninegridimageview.NineGridImageViewAdapter;
 import com.xihua.wx.weixiao.R;
+import com.xihua.wx.weixiao.achieve.discuss.DiscussActivity;
+import com.xihua.wx.weixiao.bean.ApiResult;
 import com.xihua.wx.weixiao.bean.CommentBean;
 import com.xihua.wx.weixiao.bean.CommentDetailBean;
 import com.xihua.wx.weixiao.achieve.main.publish.adapter.CommentExpandAdapter;
 import com.xihua.wx.weixiao.achieve.main.publish.views.CommentExpandableListView;
+import com.xihua.wx.weixiao.bean.IdRequest;
 import com.xihua.wx.weixiao.bean.ReplyDetailBean;
+import com.xihua.wx.weixiao.bean.Review;
+import com.xihua.wx.weixiao.query.TopicQuery;
 import com.xihua.wx.weixiao.utils.OkHttpUtil;
+import com.xihua.wx.weixiao.utils.SpUtil;
+import com.xihua.wx.weixiao.utils.ToastUtil;
 import com.xihua.wx.weixiao.utils.VolleyUtils;
 import com.xihua.wx.weixiao.utils.image.CircleNetworkImageImage;
+import com.xihua.wx.weixiao.vo.request.ReviewRequest;
+import com.xihua.wx.weixiao.vo.response.ReviewResponse;
+import com.xihua.wx.weixiao.vo.response.TopicDetailResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,21 +61,19 @@ import okhttp3.Response;
 
 //评论详情
 public class ChangYanDetailActivity extends AppCompatActivity implements View.OnClickListener {
-    private static final String TAG = "CommentDetailActivity";
     private android.support.v7.widget.Toolbar toolbar;
     private TextView tv_comment;
     private CommentExpandableListView expandableListView;
     private CommentExpandAdapter adapter;
-    private CommentBean commentBean;
-    private CommentDetailBean commentsList;
+    private TopicDetailResponse topicDetailResponse = new TopicDetailResponse();
+    private List<ReviewResponse> list =new ArrayList<>();
     private BottomSheetDialog dialog;
     private Gson gson=new Gson();
     private CircleNetworkImageImage userLogo;
-    private TextView time;
-    private TextView detail_page_content;
-    private TextView detail_page_userName;
+    private TextView time,detail_page_content,detail_page_userName;
     private NineGridImageView detail_page_img;
-    private Map<String,String> map = new HashMap<>();
+    private ImageView comment_delete;
+    private LinearLayout ll_user;
     //九宫格图片
     private NineGridImageViewAdapter nineGridImageViewAdapter = new NineGridImageViewAdapter<String>() {
         @Override
@@ -76,6 +87,17 @@ public class ChangYanDetailActivity extends AppCompatActivity implements View.On
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
+                case 1:
+                    initExpandableListView(list);
+                    break;
+                case 2:
+                    ToastUtil.showToast(ChangYanDetailActivity.this,"评论成功");
+                    finish();
+                    break;
+                case 3:
+                    ToastUtil.showToast(ChangYanDetailActivity.this,"删除成功");
+                    finish();
+                    break;
                 case 4:
                     inittitle();
                     break;
@@ -90,133 +112,127 @@ public class ChangYanDetailActivity extends AppCompatActivity implements View.On
     }
 
     private void initView() {
-        String test = "{\n" +
-                "\t\"topicId\": 1152,\n" +
-                "\t\"userName\": \"花花\",\n" +
-                "\t\"userImg\": \"\",\n" +
-                "\t\"topicImg\": \"\",\n" +
-                "\t\"topicContent\": \"今天天气真诰\",\n" +
-                "\t\"topicCreate\": 112121,\n" +
-                "\t\"topicStatus\": 1,\n" +
-                "\t\"topicComment\": 12,\n" +
-                "\t\"replyList\": [{\n" +
-                "\t\t\"reviewId\": 1212,\n" +
-                "\t\t\"reviewUserName\": \"轩轩\",\n" +
-                "\t\t\"reviewUserImg\": \"\",\n" +
-                "\t\t\"reviewContent\": \"撒旦撒旦\",\n" +
-                "\t\t\"reviewStatus\": 1,\n" +
-                "\t\t\"reviewCreateTime\": 1121212\n" +
-                "\t}, {\n" +
-                "\t\t\"reviewId\": 1212,\n" +
-                "\t\t\"reviewUserName\": \"轩轩\",\n" +
-                "\t\t\"reviewUserImg\": \"\",\n" +
-                "\t\t\"reviewContent\": \"撒旦撒旦\",\n" +
-                "\t\t\"reviewStatus\": 1,\n" +
-                "\t\t\"reviewCreateTime\": 1121212\n" +
-                "\t}]\n" +
-                "\n" +
-                "}";
-       // map.put("userid",SpUtil.getString(CommentDetailActivity.this,"userid",""));
-        map.put("titleid",getIntent().getStringExtra("titleid"));
         //初始化视图
         toolbar =  findViewById(R.id.toolbar);
         expandableListView = findViewById(R.id.detail_page_lv_comment);
         tv_comment = findViewById(R.id.detail_page_do_comment);
-        //
         userLogo = findViewById(R.id.detail_page_userLogo);
         detail_page_userName = findViewById(R.id.detail_page_userName);
         time = findViewById(R.id.detail_page_time);
         detail_page_content = findViewById(R.id.detail_page_content);
         detail_page_img =findViewById(R.id.detail_page_img);
-        getCommentsList(map.get("titleid"));
-        //initdata();
+        //初始化数据
+        initReviewdata();
+        initdata();
+
+        //初始化动作
         tv_comment.setOnClickListener(this);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         CollapsingToolbarLayout collapsingToolbar = findViewById(R.id.collapsing_toolbar);
         collapsingToolbar.setTitle("详情");
-        commentsList = gson.fromJson(test,CommentDetailBean.class);
-        handler.sendEmptyMessage(4);
-        initExpandableListView(commentsList.getReplyList());
-
     }
-    //初始化发布者信息
+    //初始化主题
     private void initdata(){
-        OkHttpUtil.doGet("http://192.168.43.240:8080/title/gettitlebyid?title_id="+map.get("titleid"), new Callback() {
+        IdRequest idRequest = new IdRequest();
+        int id = getIntent().getIntExtra("topic_id",-1);
+        if (-1==id){
+            return;
+        }
+        idRequest.setId(id);
+        OkHttpUtil.doPost("http://192.168.43.240:8080/topic/getTopicById",gson.toJson(idRequest), new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
-               // ToastUtil.showToast(CommentDetailActivity.this,"访问错误");
+                handler.sendEmptyMessage(-1);
             }
-
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()){
-                    //title = gson.fromJson(response.body().string(),TitleList.class);
-                    handler.sendEmptyMessage(4);
+                    ApiResult apiResult = gson.fromJson(response.body().string(),ApiResult.class);
+                    if (apiResult.getCode()==200){
+                        topicDetailResponse = gson.fromJson(gson.toJson(apiResult.getData()),TopicDetailResponse.class);
+                        handler.sendEmptyMessage(4);
+                    }
                 }else {
-                    //ToastUtil.showToast(CommentDetailActivity.this,"访问错误");
+                    handler.sendEmptyMessage(-1);
                 }
             }
         });
     }
+    //初始化评论
+    private void initReviewdata(){
+        IdRequest idRequest = new IdRequest();
+        int id = getIntent().getIntExtra("topic_id",-1);
+        if (-1==id){
+            return;
+        }
+        idRequest.setId(id);
+        OkHttpUtil.doPost("http://192.168.43.240:8080/review/querybytopicdd",gson.toJson(idRequest), new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                handler.sendEmptyMessage(-1);
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()){
+                    ApiResult apiResult = gson.fromJson(response.body().string(),ApiResult.class);
+                    if (apiResult.getCode()==200){
+                        list = gson.fromJson(gson.toJson(apiResult.getData()),new TypeToken<List<ReviewResponse>>(){}.getType());
+                        handler.sendEmptyMessage(1);
+                    }
+                }else {
+                    handler.sendEmptyMessage(-1);
+                }
+            }
+        });
+    }
+
+
     private void inittitle(){
-        VolleyUtils.loadImage(ChangYanDetailActivity.this,userLogo,commentsList.getUserImg());
-        detail_page_userName.setText(commentsList.getUserName());
-        time.setText(commentsList.getTopicCreate());
-        detail_page_content.setText(commentsList.getTopicContent());
+        String id = SpUtil.getString(ChangYanDetailActivity.this, "userid", "-1");
+        if ("-1".equals(id)){
+            ToastUtil.showToast(ChangYanDetailActivity.this,"请登录");
+            return;
+        }
+        if (topicDetailResponse.getTopicUserId() == Integer.parseInt(id)){
+            comment_delete = findViewById(R.id.comment_delete);
+            comment_delete.setOnClickListener(this);
+            comment_delete.setVisibility(View.VISIBLE);
+        }else {
+            ll_user = findViewById(R.id.ll_user);
+            ll_user.setOnClickListener(this);
+        }
+        VolleyUtils.loadImage(ChangYanDetailActivity.this,userLogo,topicDetailResponse.getUser().getUserImg());
+        detail_page_userName.setText(topicDetailResponse.getUser().getUserName());
+        time.setText(topicDetailResponse.getTopicCreateTime()+"");
+        detail_page_content.setText(topicDetailResponse.getTopicContent());
         List<String> stringList= new ArrayList<>();
-        String[] strings = commentsList.getTopicImg().split("%");
+        String[] strings = topicDetailResponse.getTopicImg().split("$%");
         for (String s:strings) {
             stringList.add(s);
         }
         detail_page_img.setAdapter(nineGridImageViewAdapter);
         detail_page_img.setImagesData(stringList);
-
-
     }
 
-    //初始化评论信息
-    private void getCommentsList(String titleid){
-
-        OkHttpUtil.doGet("http://192.168.43.240:8080/title/reply?title_id="+titleid, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-               // ToastUtil.showToast(CommentDetailActivity.this,"加载失败");
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()){
-                    commentBean = gson.fromJson(response.body().string(), CommentBean.class);
-                    if (commentBean.getData().getList().size()>0){
-                        //commentsList = commentBean.getData().getList();
-                    }else {
-                 //       ToastUtil.showToast(CommentDetailActivity.this,"暂无评论");
-                    }
-                   // initExpandableListView(commentsList);
-                }
-            }
-        });
-    }
 
     /**
      * 初始化评论和回复列表
      */
-    private void initExpandableListView(final List<ReplyDetailBean> replyDetailBeans){
+    private void initExpandableListView(List<ReviewResponse> reviews){
         expandableListView.setGroupIndicator(null);
         //默认展开所有回复
-        adapter = new CommentExpandAdapter(this, replyDetailBeans);
+        adapter = new CommentExpandAdapter(this, reviews);
         expandableListView.setAdapter(adapter);
-        for(int i = 0; i<replyDetailBeans.size(); i++){
+        for(int i = 0; i < reviews.size(); i++){
             expandableListView.expandGroup(i);
         }
         expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
             @Override
             public boolean onGroupClick(ExpandableListView expandableListView, View view, int groupPosition, long l) {
                 boolean isExpanded = expandableListView.isGroupExpanded(groupPosition);
-                Log.e(TAG, "onGroupClick: 当前的评论id>>>"+replyDetailBeans.get(groupPosition).getReviewId());
                 if(isExpanded){
                     expandableListView.collapseGroup(groupPosition);
                 }else {
@@ -252,8 +268,36 @@ public class ChangYanDetailActivity extends AppCompatActivity implements View.On
             case R.id.detail_page_do_comment:
                 showCommentDialog();
                 break;
+            case R.id.ll_user:
+                Intent intent = new Intent(ChangYanDetailActivity.this,DiscussActivity.class);
+                intent.putExtra("user_id",topicDetailResponse.getTopicUserId() );
+                startActivity(intent);
+                break;
+            case R.id.comment_delete:
+                delete();
+                break;
 
         }
+    }
+
+    private void delete() {
+        IdRequest idRequest = new IdRequest();
+        idRequest.setId(getIntent().getIntExtra("topic_id",-1));
+        OkHttpUtil.doPost("http://192.168.43.240:8080/topic/deleteTopic", gson.toJson(idRequest),new Callback(){
+            @Override
+            public void onFailure(Call call, IOException e) {
+                handler.sendEmptyMessage(-1);
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    ApiResult apiResult = gson.fromJson(response.body().string(),ApiResult.class);
+                    if (apiResult.getCode()==200){
+                        handler.sendEmptyMessage(3);
+                    }
+                }
+            }
+        });
     }
 
     /**
@@ -279,28 +323,26 @@ public class ChangYanDetailActivity extends AppCompatActivity implements View.On
             public void onClick(View view) {
                 String commentContent = commentText.getText().toString().trim();
                 if(!TextUtils.isEmpty(commentContent)){
-                    //commentOnWork(commentContent);
                     dialog.dismiss();
-                    ReplyDetailBean detailBean = new ReplyDetailBean("", "刚刚");
-                    HashMap<String,String> commentdata = new HashMap<>();
-                    adapter.addTheCommentData(detailBean);
-                    //本地文件取
-                    commentdata.put("reviewUserId",map.get("userid"));
-                    //评论
-                    commentdata.put("reviewTitleId",map.get("titleid"));
-                    commentdata.put("reviewContent",commentContent);
-                    OkHttpUtil.doPost("http://192.168.43.240:8080/title/addcomment", commentdata, new Callback() {
+                    ReviewRequest reviewRequest = new ReviewRequest();
+                    String id = SpUtil.getString(ChangYanDetailActivity.this, "userid", "-1");
+                    reviewRequest.setReviewUserId(Integer.parseInt(id));
+                    reviewRequest.setReviewTopicId(getIntent().getIntExtra("topic_id",-1));
+                    reviewRequest.setReviewContent(commentContent);
+                   // adapter.addTheCommentData(reviewResponse);
+                    OkHttpUtil.doPost("http://192.168.43.240:8080/review/add", gson.toJson(reviewRequest), new Callback() {
                         @Override
                         public void onFailure(Call call, IOException e) {
                             e.printStackTrace();
-                            //ToastUtil.showToast(CommentDetailActivity.this,"评论失败");
+                            handler.sendEmptyMessage(-1);
                         }
 
                         @Override
                         public void onResponse(Call call, Response response) throws IOException {
-                                if (response.isSuccessful()){
-                                    commentresult(response.body().string());
-                                }
+                            ApiResult apiResult = gson.fromJson(response.body().string(),ApiResult.class);
+                            if (apiResult.getCode()==200){
+                                handler.sendEmptyMessage(2);
+                            }
                         }
                     });
                     //Toast.makeText(CommentDetailActivity.this,"评论成功",Toast.LENGTH_SHORT).show();
@@ -310,26 +352,7 @@ public class ChangYanDetailActivity extends AppCompatActivity implements View.On
                 }
             }
         });
-        commentText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(!TextUtils.isEmpty(charSequence)){
-                    bt_comment.setBackgroundColor(Color.parseColor("#FFB568"));
-                }else {
-                    bt_comment.setBackgroundColor(Color.parseColor("#D8D8D8"));
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
         dialog.show();
     }
     /*

@@ -16,18 +16,18 @@ import com.jaeger.ninegridimageview.NineGridImageViewAdapter;
 import com.jcodecraeer.xrecyclerview.XRecyclerView;
 import com.xihua.wx.weixiao.R;
 import com.xihua.wx.weixiao.achieve.main.publish.activity.ChangYanDetailActivity;
-import com.xihua.wx.weixiao.achieve.main.publish.activity.PublishContentActivity;
-import com.xihua.wx.weixiao.bean.ChangYanResponseBean;
-import com.xihua.wx.weixiao.bean.UserInfoBean;
+import com.xihua.wx.weixiao.utils.SpUtil;
+import com.xihua.wx.weixiao.utils.ToastUtil;
 import com.xihua.wx.weixiao.utils.VolleyUtils;
 import com.xihua.wx.weixiao.utils.image.CircleNetworkImageImage;
+import com.xihua.wx.weixiao.vo.response.TopicResponse;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ChangYanAdapter extends XRecyclerView.Adapter implements View.OnClickListener {
     private Context context;
-    private List<ChangYanResponseBean.ChangYanResponse> list;
+    private List<TopicResponse> list;
     //九宫格图片
     private NineGridImageViewAdapter nineGridImageViewAdapter = new NineGridImageViewAdapter<String>() {
         @Override
@@ -36,7 +36,7 @@ public class ChangYanAdapter extends XRecyclerView.Adapter implements View.OnCli
         }
     };
 
-    public ChangYanAdapter(List<ChangYanResponseBean.ChangYanResponse> list, Context context) {
+    public ChangYanAdapter(List<TopicResponse> list, Context context) {
         this.context = context;
         this.list = list;
     }
@@ -50,28 +50,43 @@ public class ChangYanAdapter extends XRecyclerView.Adapter implements View.OnCli
     @Override
     public void onBindViewHolder(XRecyclerView.ViewHolder holder, final int position) {
         if (holder instanceof ViewHolder) {
-            ChangYanResponseBean.ChangYanResponse bean = list.get(position);
-            if (!bean.getChangYanImg().equals("")) {
-                VolleyUtils.loadImage(context, ((ViewHolder) holder).iv_header, bean.getChangYanUserImg());
+            final TopicResponse bean = list.get(position);
+            if (!bean.getUser().getUserImg().equals("")) {
+                VolleyUtils.loadImage(context, ((ViewHolder) holder).iv_header, bean.getUser().getUserImg());
             }
-            ((ViewHolder) holder).tv_name.setText(bean.getChangYanUsername());
-            ((ViewHolder) holder).tv_time.setText(bean.getChanYanTime()+"");
-            ((ViewHolder) holder).tv_content.setText(bean.getChangYanContent());
+            ((ViewHolder) holder).tv_name.setText(bean.getUser().getUserName());
+            ((ViewHolder) holder).tv_time.setText(bean.getTopicCreateTime()+"");
+            ((ViewHolder) holder).tv_content.setText(bean.getTopicContent());
             ((ViewHolder) holder).iv_video.setAdapter(nineGridImageViewAdapter);
             List<String> stringList = new ArrayList<>();
-            String[] strings = bean.getChangYanImg().split("%");
+            String[] strings = bean.getTopicImg().split("$%");
             for (String s : strings) {
                 stringList.add(s);
             }
             ((ViewHolder) holder).iv_video.setImagesData(stringList);
-            ((ViewHolder) holder).tv_like.setText(bean.getChangyanLike()+"");
-            ((ViewHolder) holder).tv_comment.setText(bean.getChangYanComment()+"");
-            ((ViewHolder) holder).tv_comment.setOnClickListener(new View.OnClickListener() {
+            ((ViewHolder) holder).tv_like.setText(bean.getTopicLike()+"");
+            ((ViewHolder) holder).tv_comment.setText(bean.getTopicComment()+"");
+            ((ViewHolder) holder).ll_comment.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     context.startActivity(new Intent(context,ChangYanDetailActivity.class));
                 }
             });
+            ((ViewHolder) holder).ll_like.setOnClickListener(this);
+            ((ViewHolder) holder).ll_comment.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String id = SpUtil.getString(context, "userid", "-1");
+                    if ("-1".equals(id)){
+                        ToastUtil.showToast(context,"请登录");
+                        return;
+                    }
+                    Intent intent = new Intent(context,ChangYanDetailActivity.class);
+                    intent.putExtra("topic_id",bean.getTopicId());
+                    context.startActivity(intent);
+                }
+            });
+
         }
     }
 
@@ -84,7 +99,7 @@ public class ChangYanAdapter extends XRecyclerView.Adapter implements View.OnCli
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.ll_like:
-                //ToastUtil.showToast(context,"点赞加+1");
+                ToastUtil.showToast(context,"点赞加+1");
                 break;
         }
     }

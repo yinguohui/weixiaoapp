@@ -11,14 +11,28 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.jcodecraeer.xrecyclerview.ProgressStyle;
 import com.jcodecraeer.xrecyclerview.XRecyclerView;
 import com.xihua.wx.weixiao.R;
 import com.xihua.wx.weixiao.achieve.main.lost.adapter.LostInfoAdapter;
+import com.xihua.wx.weixiao.bean.ApiResult;
+import com.xihua.wx.weixiao.bean.IdRequest;
 import com.xihua.wx.weixiao.bean.LostinfoList;
+import com.xihua.wx.weixiao.query.LostInfoQuery;
+import com.xihua.wx.weixiao.utils.MapUtil;
+import com.xihua.wx.weixiao.utils.OkHttpUtil;
+import com.xihua.wx.weixiao.utils.ToastUtil;
+import com.xihua.wx.weixiao.vo.request.LostinfoRequest;
+import com.xihua.wx.weixiao.vo.response.LostinfoResponse;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class LostInfoActivity extends AppCompatActivity implements View.OnClickListener {
     ImageView iv_back,iv_search;
@@ -26,7 +40,8 @@ public class LostInfoActivity extends AppCompatActivity implements View.OnClickL
     XRecyclerView xc_lost;
     private LinearLayoutManager manager;
     LostInfoAdapter adapter;
-    List<LostinfoList.LostinfoBean> list = new ArrayList<>();
+    private Gson gson = new Gson();
+    List<LostinfoResponse> list = new ArrayList<>();
     private Handler handler = new Handler() {
 
         @Override
@@ -69,7 +84,7 @@ public class LostInfoActivity extends AppCompatActivity implements View.OnClickL
         xc_lost.setLoadingListener(new XRecyclerView.LoadingListener() {
             //刷新
             @Override
-            public void onRefresh() {
+            public void onRefresh() {initData();xc_lost.refreshComplete();
             }
             //加载更多
             @Override
@@ -78,29 +93,7 @@ public class LostInfoActivity extends AppCompatActivity implements View.OnClickL
             }
         });
         xc_lost.refresh();
-        String test = "{\n" +
-                "\t\"code\": 200,\n" +
-                "\t\"page\": 100,\n" +
-                "\t\"total\": 123,\n" +
-                "\t\"list\": [{\n" +
-                "\t\t\"lostinfoId\": 1151,\n" +
-                "\t\t\"lostinfoName\": \"身份证\",\n" +
-                "\t  \"lostinfoTime\":11111,\n" +
-                "\t\t\"lostinfoDescription\": \"在三教附近拾取，联系电话110\",\n" +
-                "\t\t\"lostinfoImg\": \"\"\n" +
-                "\t}, {\n" +
-                "\t\t\"lostinfoId\": 1151,\n" +
-                "\t\t\"lostinfoName\": \"身份证\",\n" +
-                "\t    \"lostinfoTime\":11111,\n" +
-                "\t\t\"lostinfoDescription\": \"在三教附近拾取，联系电话110\",\n" +
-                "\t\t\"lostinfoImg\": \"\"\n" +
-                "\t}]\n" +
-                "\n" +
-                "}";
-        Gson gson =new Gson();
-        LostinfoList lostinfoList = gson.fromJson(test,LostinfoList.class);
-        list = lostinfoList.getList();
-        handler.sendEmptyMessage(1);
+
     }
 
     @Override
@@ -113,5 +106,26 @@ public class LostInfoActivity extends AppCompatActivity implements View.OnClickL
                 //search();
                 break;
         }
+    }
+    private void initData(){
+        IdRequest idRequest = new IdRequest();
+        idRequest.setId(1);
+        OkHttpUtil.doPost("http://192.168.43.240:8080/lostinfo/queryAllLost", gson.toJson(idRequest),new Callback(){
+            @Override
+            public void onFailure(Call call, IOException e) {
+                handler.sendEmptyMessage(-1);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    ApiResult apiResult = gson.fromJson(response.body().string(),ApiResult.class);
+                    if (apiResult.getCode()==200){
+                        list = gson.fromJson(gson.toJson(apiResult.getData()),new TypeToken<List<LostinfoResponse>>(){}.getType());
+                        handler.sendEmptyMessage(1);
+                    }
+                }
+            }
+        });
     }
 }

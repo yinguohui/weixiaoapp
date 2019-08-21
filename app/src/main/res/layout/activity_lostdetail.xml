@@ -31,15 +31,16 @@
                 android:text="信息详情"/>
         </RelativeLayout>
         <LinearLayout
+            android:id="@+id/ll_user"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="80dp"
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
             <com.xihua.wx.weixiao.utils.image.CircleNetworkImageImage
                 android:id="@+id/iv_header"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:layout_marginLeft="12dp"
                 circle:civ_border_width="1dp"
                 circle:civ_border_color="@android:color/transparent"
@@ -51,14 +52,26 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginLeft="5dp">
-
-                <TextView
-                    android:id="@+id/tv_name"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="15sp"
-                    android:textColor="@color/main_bottom_text_select" />
-
+                    android:orientation="horizontal"
+                    android:layout_marginLeft="5dp">
+                    <TextView
+                        android:id="@+id/tv_name"
+                        android:layout_weight="4"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:textSize="18sp"
+                        android:textColor="@color/main_bottom_text_select" />
+                    <ImageView
+                        android:id="@+id/bt_delete"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_margin="6dp"
+                        android:src="@drawable/icon_deletes"/>
+                </LinearLayout>
                 <TextView
                     android:id="@+id/tv_publish_time"
                     android:layout_width="wrap_content"
@@ -98,6 +111,7 @@
             android:textSize="15sp"
             android:textColor="@color/main_bottom_text_select"
             android:layout_margin="5dp"/>
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
@@ -109,17 +123,19 @@
             android:textSize="15sp"
             android:textColor="@color/main_bottom_text_select"
             android:layout_margin="5dp"/>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/bar_grey_90" />
-        <TextView
-            android:id="@+id/tv_infolosttime"
-            android:layout_width="wrap_content"
-            android:layout_height="30dp"
-            android:textSize="15sp"
-            android:textColor="@color/main_bottom_text_select"
-            android:layout_margin="5dp"/>
+
+        <!--<View-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="1dp"-->
+            <!--android:background="@color/bar_grey_90" />-->
+        <!--<TextView-->
+            <!--android:id="@+id/tv_infolosttime"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="30dp"-->
+            <!--android:textSize="15sp"-->
+            <!--android:textColor="@color/main_bottom_text_select"-->
+            <!--android:layout_margin="5dp"/>-->
+        <!---->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"

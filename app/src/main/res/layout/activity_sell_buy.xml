@@ -24,7 +24,7 @@
             android:textColor="@color/colorWhite"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:text="出售商品"/>
+            android:text="商品大厅"/>
     </RelativeLayout>
     <RelativeLayout
         android:layout_width="match_parent"

@@ -13,9 +13,11 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.xihua.wx.weixiao.R;
 import com.xihua.wx.weixiao.bean.ApiResult;
+import com.xihua.wx.weixiao.bean.IdRequest;
 import com.xihua.wx.weixiao.utils.OkHttpUtil;
 import com.xihua.wx.weixiao.utils.SpUtil;
 import com.xihua.wx.weixiao.utils.ToastUtil;
+import com.xihua.wx.weixiao.vo.request.UserRequest;
 import com.xihua.wx.weixiao.vo.response.UserResponse;
 
 import java.io.IOException;
@@ -30,10 +32,10 @@ public class ModifySignActivity extends AppCompatActivity implements View.OnClic
     private ImageView iv_back;
     private TextView modifysign;
     private EditText et_sign;
+    String data = "";
+    String data1 = "";
     private Gson gson;
-    private Map<String,String> sign = new HashMap<>();
     private UserResponse userResult;
-    private Map<String,String> map = new HashMap<>();
 
     private Handler handler = new Handler() {
 
@@ -43,24 +45,26 @@ public class ModifySignActivity extends AppCompatActivity implements View.OnClic
                 case 1:
                     et_sign.setText(userResult.getUserSign());
                     break;
+                case 2:
+                    fromresult(data);
+                    break;
             }
         }
     };
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_modifysign);
+        setContentView(R.layout.activity_modifysign);
         init();
     }
     private void init(){
         iv_back = findViewById(R.id.iv_back);
-        //modifysign = findViewById(R.id.modifysign);
-        //et_sign = findViewById(R.id.et_sign);
+        modifysign = findViewById(R.id.modifysign);
+        et_sign = findViewById(R.id.et_sign);
         gson = new Gson();
 
         iv_back.setOnClickListener(this);
         modifysign.setOnClickListener(this);
-        map.put("userId",SpUtil.getString(ModifySignActivity.this,"userid",""));
     }
 
     @Override
@@ -69,18 +73,17 @@ public class ModifySignActivity extends AppCompatActivity implements View.OnClic
             case R.id.iv_back:
                 finish();
                 break;
-//            case R.id.modifysign:
-//                map.put("userSign",et_sign.getText().toString());
-//                if (map.get("userSign").length()>25){
-//                    ToastUtil.showToast(ModifySignActivity.this,"签名长度不能大于25");
-//                    return;
-//                }
-//                modifysign();
-//                break;
+            case R.id.modifysign:
+                modifysign();
+                break;
         }
     }
     private void modifysign(){
-        OkHttpUtil.doPost("http://192.168.43.240:8080/user/updateuserinfo", map, new Callback() {
+        String id= SpUtil.getString(ModifySignActivity.this, "userid", "-1");
+        UserRequest userResponse = new UserRequest();
+        userResponse.setUserSign(et_sign.getText().toString());
+        userResponse.setUserId(Integer.parseInt(id));
+        OkHttpUtil.doPost("http://192.168.43.240:8080/user/updateuserinfo", gson.toJson(userResponse) , new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
@@ -89,7 +92,8 @@ public class ModifySignActivity extends AppCompatActivity implements View.OnClic
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()){
-                    fromresult(response.body().string());
+                    data = response.body().string();
+                    handler.sendEmptyMessage(2);
                 }
             }
         });
@@ -99,7 +103,10 @@ public class ModifySignActivity extends AppCompatActivity implements View.OnClic
     @Override
     protected void onResume() {
         super.onResume();
-        OkHttpUtil.doGet("http://192.168.43.240:8080/user/userinfo?user_id="+map.get("userId"), new Callback() {
+        IdRequest idRequest = new IdRequest();
+        String id  =SpUtil.getString(ModifySignActivity.this, "userid", "-1");
+        idRequest.setId(Integer.parseInt(id));
+        OkHttpUtil.doPost("http://192.168.43.240:8080/user/getuserinfobyid",gson.toJson(idRequest) ,new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
@@ -121,6 +128,8 @@ public class ModifySignActivity extends AppCompatActivity implements View.OnClic
         userResult = gson.fromJson(gson.toJson(result),UserResponse.class);
         if (result.getCode()!=200){
             handler.sendEmptyMessage(-1);
+        }else {
+            handler.sendEmptyMessage(1);
         }
     }
 

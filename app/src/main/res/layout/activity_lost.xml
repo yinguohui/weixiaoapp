@@ -27,13 +27,17 @@
             android:textStyle="bold"
             android:text="失物招领"/>
     </RelativeLayout>
+
     <ImageView
         android:layout_below="@+id/top"
         android:id="@+id/lostlists"
         android:layout_marginRight="10dp"
         android:layout_marginLeft="10dp"
         android:layout_width="match_parent"
+        android:src="@drawable/lost_ad"
+        android:scaleType="center"
         android:layout_height="160dp" />
+
     <LinearLayout
         android:layout_below="@+id/lostlists"
         android:id="@+id/ll_lost1"
@@ -89,6 +93,66 @@
                 android:text="失物招领"/>
         </LinearLayout>
         <LinearLayout
+            android:id="@+id/ll_lost_query"
+            android:layout_width="80dp"
+            android:layout_height="100dp"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_marginRight="10dp">
+
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_gravity="center"
+                android:src="@drawable/lost_get"
+                android:scaleType="centerCrop"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:textColor="@color/colorMid"
+                android:textSize="16sp"
+                android:text="寻物查询"/>
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_below="@+id/ll_lost1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:orientation="horizontal">
+        <LinearLayout
+            android:id="@+id/ll_found_query"
+            android:layout_width="80dp"
+            android:layout_height="100dp"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_marginRight="10dp">
+
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_gravity="center"
+                android:src="@drawable/lost_query"
+                android:scaleType="centerCrop"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:textColor="@color/colorMid"
+                android:textSize="16sp"
+                android:text="失物查询"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="80dp"
+            android:layout_height="100dp"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_marginRight="10dp">
+        </LinearLayout>
+        <LinearLayout
             android:layout_width="80dp"
             android:layout_height="100dp"
             android:orientation="vertical"
@@ -97,28 +161,28 @@
         </LinearLayout>
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_alignParentBottom="true"
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:orientation="horizontal">
-        <Button
-            android:id="@+id/bt_connectionus"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:textSize="20sp"
-            android:textColor="@color/blue"
-            android:layout_margin="5dp"
-            android:text="联系我们"/>
-        <Button
-            android:id="@+id/bt_lostpublish"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_margin="5dp"
-            android:layout_height="match_parent"
-            android:textSize="20sp"
-            android:textColor="@color/blue"
-            android:text="我发布的"/>
-    </LinearLayout>
+    <!--<LinearLayout-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="70dp"-->
+        <!--android:orientation="horizontal">-->
+        <!--<Button-->
+            <!--android:id="@+id/bt_connectionus"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_weight="1"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:textSize="20sp"-->
+            <!--android:textColor="@color/blue"-->
+            <!--android:layout_margin="5dp"-->
+            <!--android:text="联系我们"/>-->
+        <!--<Button-->
+            <!--android:id="@+id/bt_lostpublish"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_weight="1"-->
+            <!--android:layout_margin="5dp"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:textSize="20sp"-->
+            <!--android:textColor="@color/blue"-->
+            <!--android:text="我发布的"/>-->
+    <!--</LinearLayout>-->
 </RelativeLayout>

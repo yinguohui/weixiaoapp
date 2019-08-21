@@ -21,12 +21,15 @@ import com.xihua.wx.weixiao.query.GoodsQuery;
 import com.xihua.wx.weixiao.query.PageResult;
 import com.xihua.wx.weixiao.utils.MapUtil;
 import com.xihua.wx.weixiao.utils.OkHttpUtil;
+import com.xihua.wx.weixiao.utils.StringUtils;
 import com.xihua.wx.weixiao.utils.ToastUtil;
 import com.xihua.wx.weixiao.vo.response.GoodsResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -39,7 +42,7 @@ public class SellBuyActivity extends AppCompatActivity implements View.OnClickLi
     GoodsQuery query = new GoodsQuery();
     GoodsAdapter goodsAdapter;
     EditText et_goodsbuy;
-    List<GoodsResponse> bean = new ArrayList<GoodsResponse>();
+    List<GoodsResponse> bean = new ArrayList<>();
     Gson gson = new Gson();
     private Handler handler = new Handler() {
 
@@ -53,6 +56,7 @@ public class SellBuyActivity extends AppCompatActivity implements View.OnClickLi
                     goodsAdapter = new GoodsAdapter(bean,SellBuyActivity.this);
                     xc_goods.setAdapter(goodsAdapter);
                     goodsAdapter.notifyDataSetChanged();
+                    xc_goods.refreshComplete();
                     break;
                 case 2:
                     ToastUtil.showToast(SellBuyActivity.this,"暂无数据");
@@ -89,7 +93,6 @@ public class SellBuyActivity extends AppCompatActivity implements View.OnClickLi
                 query.setCurrentPage(1);
                 query.setPageSize(10);
                 initData(query);
-                xc_goods.refreshComplete();
             }
             //加载更多
             @Override
@@ -98,6 +101,7 @@ public class SellBuyActivity extends AppCompatActivity implements View.OnClickLi
                     query.setCurrentPage(query.getCurrentPage()+1);
                     query.setPageSize(10);
                     initData(query);
+                }else {
                     xc_goods.refreshComplete();
                 }
 
@@ -113,6 +117,7 @@ public class SellBuyActivity extends AppCompatActivity implements View.OnClickLi
         switch (v.getId()){
             case R.id.iv_back:
                 finish();
+                break;
             case R.id.iv_search:
                 search();
                 break;
@@ -149,6 +154,40 @@ public class SellBuyActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void search(){
-        ToastUtil.showToast(SellBuyActivity.this,"寻早");
+        if(!StringUtils.judgeIsBlack(et_goodsbuy)){
+            ToastUtil.showToast(SellBuyActivity.this,"搜索内容不能为空");
+            return;
+        }else {
+            String key = et_goodsbuy.getText().toString();
+            Map map = new HashMap();
+            map.put("key",key);
+            OkHttpUtil.doPost("http://192.168.43.240:8080/goods/queryByKey", map, new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    e.printStackTrace();
+                    handler.sendEmptyMessage(-1);
+                }
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (response.isSuccessful()){
+                        ApiResult apiResult = gson.fromJson(response.body().string(),ApiResult.class);
+                        List<GoodsResponse> list = gson.fromJson(gson.toJson(apiResult.getData()), new TypeToken<List<GoodsResponse>>() {
+                        }.getType());
+                        if (apiResult.getCode()==200){
+                            if (list.size()>0){
+                                bean = list;
+                                handler.sendEmptyMessage(1);
+                            }else {
+                                handler.sendEmptyMessage(2);
+                            }
+                        }else {
+                            handler.sendEmptyMessage(-1);
+                        }
+                    }
+                }
+            });
+        }
+
     }
+
 }

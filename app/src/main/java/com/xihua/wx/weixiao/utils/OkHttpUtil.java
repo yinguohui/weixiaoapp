@@ -195,5 +195,24 @@ public class OkHttpUtil {
                 .build();
         getInstance().newCall(request).enqueue(callback);
     }
+    public static void uploadmany(String url, String json, List<String> files, Callback callback) {
+        //map ---文件路径：文件名
+        MultipartBody.Builder builder = new MultipartBody.Builder();
+        builder.setType(MultipartBody.FORM);
+        //RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json);
+        builder.addFormDataPart("lostinfo",json);
+        //遍历paths中所有图片绝对路径到builder，并约定key如“create”作为后台接受多张图片的key
+        if (files != null){
+            for (String file : files) {
+                builder.addFormDataPart("files", file, RequestBody.create(MEDIA_TYPE_PNG, new File(file)));
+            }
+        }
+        //发出请求参数
+        Request request = new Request.Builder()
+                .url(url)
+                .post(builder.build())
+                .build();
+        getInstance().newCall(request).enqueue(callback);
+    }
 }
 

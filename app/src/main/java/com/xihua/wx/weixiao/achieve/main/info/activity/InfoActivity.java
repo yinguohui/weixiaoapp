@@ -47,11 +47,11 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class InfoActivity extends AppCompatActivity implements View.OnClickListener{
+public class InfoActivity extends AppCompatActivity implements View.OnClickListener {
     ImageView iv_back;
     EditText et_info;
     Button bt_info_commit;
-    private ApiResult<Integer> apiResult;
+    private ApiResult<Double> apiResult;
     private Gson gson = new Gson();
     private List<LocalMedia> selectList = new ArrayList<>();
     private List<String> stringList = new ArrayList<>();
@@ -64,17 +64,18 @@ public class InfoActivity extends AppCompatActivity implements View.OnClickListe
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case 0:
-                    ToastUtil.showToast(InfoActivity.this,"请输入内容");
+                    ToastUtil.showToast(InfoActivity.this, "请输入内容");
                     break;
                 case 1:
-                    ToastUtil.showToast(InfoActivity.this,"网络错误");
+                    ToastUtil.showToast(InfoActivity.this, "网络错误");
                     break;
                 case 2:
-                    ToastUtil.showToast(InfoActivity.this,"提交错误");
+                    ToastUtil.showToast(InfoActivity.this, "提交错误");
                     break;
             }
         }
     };
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,15 +83,17 @@ public class InfoActivity extends AppCompatActivity implements View.OnClickListe
         init();
         initimage();
     }
-    private void init(){
+
+    private void init() {
         iv_back = findViewById(R.id.iv_back);
         et_info = findViewById(R.id.et_info);
-        bt_info_commit= findViewById(R.id.bt_info_commit);
+        bt_info_commit = findViewById(R.id.bt_info_commit);
 
         iv_back.setOnClickListener(this);
         bt_info_commit.setOnClickListener(this);
     }
-    private void initimage(){
+
+    private void initimage() {
         recyclerView = findViewById(R.id.recycler);
         GridLayoutManager manager = new GridLayoutManager(InfoActivity.this, 4, GridLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(manager);
@@ -142,6 +145,7 @@ public class InfoActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
     }
+
     private GridImageAdapter.onAddPicClickListener onAddPicClickListener = new GridImageAdapter.onAddPicClickListener() {
         @Override
         public void onAddPicClick() {
@@ -155,7 +159,7 @@ public class InfoActivity extends AppCompatActivity implements View.OnClickListe
                         .minSelectNum(1)// 最小选择数量
                         .imageSpanCount(3)// 每行显示个数
                         //PictureConfig.MULTIPLE : PictureConfig.SINGLE)// 多选 or 单选
-                        .selectionMode(PictureConfig.MULTIPLE )// 多选 or 单选
+                        .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选
                         // 是否可预览图片
                         .previewImage(true)// 是否可预览图片
                         //.previewVideo(false)// 是否可预览视频
@@ -271,9 +275,9 @@ public class InfoActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     //提交反馈信息
-    private void infocommit(){
+    private void infocommit() {
         SuggestionRequest suggestionRequest = new SuggestionRequest();
-        if (!StringUtils.judgeIsBlack(et_info)){
+        if (!StringUtils.judgeIsBlack(et_info)) {
             handler.sendEmptyMessage(0);
             return;
         }
@@ -287,14 +291,15 @@ public class InfoActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()){
-                    apiResult = gson.fromJson(response.body().string(),ApiResult.class);if (apiResult.getCode()==200){
-                    if (apiResult.getData()>=1){
-                        startActivity(new Intent(InfoActivity.this,InfoSuccessActivity.class));
-                    }else {
-                       handler.sendEmptyMessage(2);
+                if (response.isSuccessful()) {
+                    apiResult = gson.fromJson(response.body().string(), ApiResult.class);
+                    if (apiResult.getCode() == 200) {
+                        if (apiResult.getData().intValue() >= 1) {
+                            startActivity(new Intent(InfoActivity.this, InfoSuccessActivity.class));
+                        } else {
+                            handler.sendEmptyMessage(2);
+                        }
                     }
-                }
                 }
             }
         });

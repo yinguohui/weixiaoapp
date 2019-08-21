@@ -61,6 +61,7 @@
                     android:orientation="vertical">
 
                     <LinearLayout
+                        android:id="@+id/ll_user"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
@@ -94,6 +95,14 @@
                                 android:layout_marginTop="3dp"
                                 android:textColor="#989898"/>
                         </LinearLayout>
+                        <ImageView
+                            android:id="@+id/comment_delete"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:visibility="invisible"
+                            android:theme="?android:selectableItemBackgroundBorderless"
+                            android:src="@drawable/icon_deletes"
+                            android:layout_margin="5dp"/>
                     </LinearLayout>
                     <TextView
                         android:id="@+id/detail_page_content"

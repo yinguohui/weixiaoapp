@@ -114,7 +114,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         String id  = SpUtil.getString(SettingActivity.this,"userid","");
         IdRequest idRequest = new IdRequest();
         idRequest.setId(Integer.parseInt(id));
-        OkHttpUtil.doPost("http://192.168.43.240:8080/user/getuserinfobyid",MapUtil.objectToMap(idRequest), new Callback() {
+        OkHttpUtil.doPost("http://192.168.43.240:8080/user/getuserinfobyid",gson.toJson(idRequest), new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 handler.sendEmptyMessage(-1);
