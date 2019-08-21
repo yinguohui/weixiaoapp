@@ -145,6 +145,7 @@ public class DiscussActivity extends AppCompatActivity {
             etInput.setText("");
             String id = SpUtil.getString(DiscussActivity.this, "userid", "-1");
             request.setChatReviceId(list.get(0).getUser().getUserId());
+            if(list.get(0).getUser().getUserId()!=Integer.parseInt(id))
             request.setChatSendId(Integer.parseInt(id));
             add(request);
         }
