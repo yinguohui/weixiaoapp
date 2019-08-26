@@ -13,6 +13,7 @@ import com.jcodecraeer.xrecyclerview.XRecyclerView;
 import com.xihua.wx.weixiao.R;
 import com.xihua.wx.weixiao.bean.ChangYanResponseBean;
 import com.xihua.wx.weixiao.bean.LikeMessageList;
+import com.xihua.wx.weixiao.utils.DateUtils;
 import com.xihua.wx.weixiao.utils.VolleyUtils;
 import com.xihua.wx.weixiao.utils.image.CircleNetworkImageImage;
 import com.xihua.wx.weixiao.vo.response.MineReviewResponse;
@@ -42,7 +43,7 @@ public class AboutMeAdapter extends XRecyclerView.Adapter implements View.OnClic
                 VolleyUtils.loadImage(context, ((ViewHolder) holder).iv_header, bean.getUser().getUserImg());
             }
             ((ViewHolder) holder).tv_name.setText(bean.getUser().getUserName());
-            ((ViewHolder) holder).tv_time.setText(bean.getReviewCreateTime()+"");
+            ((ViewHolder) holder).tv_time.setText(DateUtils.parseDate(bean.getReviewCreateTime()));
 
             ((ViewHolder) holder).tv_type.setText("评论了你:"+bean.getReviewContent());
 

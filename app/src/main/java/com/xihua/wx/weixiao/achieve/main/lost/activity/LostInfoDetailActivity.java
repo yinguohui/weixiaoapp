@@ -23,6 +23,7 @@ import com.xihua.wx.weixiao.achieve.main.sell.SellBuyDetailActivity;
 import com.xihua.wx.weixiao.bean.ApiResult;
 import com.xihua.wx.weixiao.bean.IdRequest;
 import com.xihua.wx.weixiao.bean.LostinfoDetailBean;
+import com.xihua.wx.weixiao.utils.DateUtils;
 import com.xihua.wx.weixiao.utils.MapUtil;
 import com.xihua.wx.weixiao.utils.OkHttpUtil;
 import com.xihua.wx.weixiao.utils.SpUtil;
@@ -86,7 +87,7 @@ public class LostInfoDetailActivity extends AppCompatActivity implements View.On
                 break;
             case R.id.ll_user:
                 Intent intent = new Intent(LostInfoDetailActivity.this,DiscussActivity.class);
-                intent.putExtra("user_id",bean.getLostinfoUserId());
+                intent.putExtra("send_id",bean.getUser().getUserId());
                 startActivity(intent);
                 break;
             case R.id.bt_delete:
@@ -170,13 +171,10 @@ public class LostInfoDetailActivity extends AppCompatActivity implements View.On
         }else {
             ll_user = findViewById(R.id.ll_user);
             ll_user.setOnClickListener(this);
-            Intent intent = new Intent(LostInfoDetailActivity.this,DiscussActivity.class);
-            intent.putExtra("user_id",bean.getUser().getUserId());
-            startActivity(intent);
         }
         VolleyUtils.loadImage(LostInfoDetailActivity.this,iv_header,response.getUser().getUserImg());
         tv_name.setText(response.getUser().getUserName());
-        tv_publish_time.setText(new Date(response.getLostinfoCreateTime()).toString());
+        tv_publish_time.setText(DateUtils.parseDate(response.getLostinfoCreateTime()));
         tv_infoname.setText("名称："+response.getLostinfoName());
         if (1==response.getLostinfoType()){
             tv_type.setText("类型：找寻失物");

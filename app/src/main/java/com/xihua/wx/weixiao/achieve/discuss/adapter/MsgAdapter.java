@@ -14,6 +14,8 @@ import com.xihua.wx.weixiao.R;
 import com.xihua.wx.weixiao.achieve.discuss.DiscussActivity;
 import com.xihua.wx.weixiao.bean.MsgContentBean;
 import com.xihua.wx.weixiao.utils.SpUtil;
+import com.xihua.wx.weixiao.utils.VolleyUtils;
+import com.xihua.wx.weixiao.utils.image.CircleNetworkImageImage;
 import com.xihua.wx.weixiao.vo.response.ChatAllResponse;
 
 import java.util.List;
@@ -25,15 +27,16 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder>{
     static class ViewHolder extends RecyclerView.ViewHolder {
         LinearLayout leftLayout;
         LinearLayout rightLayout;
-        TextView leftMsg;
-        ImageView iv_avator_recieve;
+        TextView leftMsg,tv_nickname_recieve;
+        CircleNetworkImageImage iv_avator_recieve;
         TextView rihgtMsg;
-        ImageView iv_avator_send;
+        CircleNetworkImageImage iv_avator_send;
 
         public ViewHolder(View view) {
             super(view);
             leftLayout =  view.findViewById(R.id.rl_receive);
             rightLayout = view.findViewById(R.id.ll_send);
+            tv_nickname_recieve =view.findViewById(R.id.tv_nickname_recieve);
             leftMsg = view.findViewById(R.id.tv_msg_receive);
             rihgtMsg =  view.findViewById(R.id.tv_msg_send);
             iv_avator_recieve =view.findViewById(R.id.iv_avator_recieve);
@@ -55,18 +58,24 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder>{
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         String id = SpUtil.getString(context, "userid", "-1");
+        String userimg =SpUtil.getString(context, "userimg", "-1");
         ChatAllResponse response = list.get(position);
-        if (response.getChatSendId()==Integer.parseInt(id)) {
-            holder.leftLayout.setVisibility(View.VISIBLE);
-            holder.rightLayout.setVisibility(View.GONE);
-            holder.leftMsg.setText(response.getChatContent());
-            Glide.with(context) .load(response.getUser().getUserImg()) .into(holder.iv_avator_send);
-        } else  {
-            holder.rightLayout.setVisibility(View.VISIBLE);
-            holder.leftLayout.setVisibility(View.GONE);
-            holder.rihgtMsg.setText(response.getChatContent());
-            Glide.with(context) .load(response.getUser().getUserImg()) .into(holder.iv_avator_recieve);
+        if (null!=response.getChatSendId()){
+            if (response.getChatSendId()!=Integer.parseInt(id)) {
+                holder.leftLayout.setVisibility(View.VISIBLE);
+                holder.rightLayout.setVisibility(View.GONE);
+                holder.leftMsg.setText(response.getChatContent());
+                holder.tv_nickname_recieve.setText(response.getUser().getUserName());
+                VolleyUtils.loadImage(context, holder.iv_avator_send,userimg);
+            } else  {
+                holder.rightLayout.setVisibility(View.VISIBLE);
+                holder.leftLayout.setVisibility(View.GONE);
+                holder.rihgtMsg.setText(response.getChatContent());
+                VolleyUtils.loadImage(context, holder.iv_avator_recieve,response.getUser().getUserImg());
+
+            }
         }
+
     }
 
     @Override

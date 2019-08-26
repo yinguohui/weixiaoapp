@@ -31,6 +31,7 @@ import com.jaeger.ninegridimageview.NineGridImageView;
 import com.jaeger.ninegridimageview.NineGridImageViewAdapter;
 import com.xihua.wx.weixiao.R;
 import com.xihua.wx.weixiao.achieve.discuss.DiscussActivity;
+import com.xihua.wx.weixiao.achieve.main.lost.activity.LostInfoDetailActivity;
 import com.xihua.wx.weixiao.bean.ApiResult;
 import com.xihua.wx.weixiao.bean.CommentBean;
 import com.xihua.wx.weixiao.bean.CommentDetailBean;
@@ -40,6 +41,7 @@ import com.xihua.wx.weixiao.bean.IdRequest;
 import com.xihua.wx.weixiao.bean.ReplyDetailBean;
 import com.xihua.wx.weixiao.bean.Review;
 import com.xihua.wx.weixiao.query.TopicQuery;
+import com.xihua.wx.weixiao.utils.DateUtils;
 import com.xihua.wx.weixiao.utils.OkHttpUtil;
 import com.xihua.wx.weixiao.utils.SpUtil;
 import com.xihua.wx.weixiao.utils.ToastUtil;
@@ -206,7 +208,7 @@ public class ChangYanDetailActivity extends AppCompatActivity implements View.On
         }
         VolleyUtils.loadImage(ChangYanDetailActivity.this,userLogo,topicDetailResponse.getUser().getUserImg());
         detail_page_userName.setText(topicDetailResponse.getUser().getUserName());
-        time.setText(topicDetailResponse.getTopicCreateTime()+"");
+        time.setText(DateUtils.parseDate(topicDetailResponse.getTopicCreateTime()));
         detail_page_content.setText(topicDetailResponse.getTopicContent());
         List<String> stringList= new ArrayList<>();
         String[] strings = topicDetailResponse.getTopicImg().split("$%");
@@ -270,7 +272,7 @@ public class ChangYanDetailActivity extends AppCompatActivity implements View.On
                 break;
             case R.id.ll_user:
                 Intent intent = new Intent(ChangYanDetailActivity.this,DiscussActivity.class);
-                intent.putExtra("user_id",topicDetailResponse.getTopicUserId() );
+                intent.putExtra("send_id",list.get(0).getUser().getUserId());
                 startActivity(intent);
                 break;
             case R.id.comment_delete:

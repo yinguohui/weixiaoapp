@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -48,7 +49,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class DiscussFragment extends BaseFragment implements RecyclerViewAdapter.onSlidingViewClickListener{
+public class DiscussFragment extends BaseFragment implements RecyclerViewAdapter.onSlidingViewClickListener,View.OnClickListener{
 
     private RecyclerView recycler;              //在xml 中 RecyclerView 布局
     private RecyclerViewAdapter rvAdapter;      //item_recycler 布局的 适配器
@@ -149,5 +150,10 @@ public class DiscussFragment extends BaseFragment implements RecyclerViewAdapter
     public void onResume() {
         super.onResume();
         initDate();
+    }
+
+    @Override
+    public void onClick(View view) {
+
     }
 }

@@ -128,41 +128,6 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/rl_sex"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginTop="1dp"
-        android:background="@drawable/item_bg">
-
-        <ImageView
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="10dp"
-            android:src="@drawable/small_right" />
-        <TextView
-            android:id="@+id/tv_sex"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="40dp"
-            android:text="男"
-            android:textColor="@color/colorBig"
-            android:textSize="15sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="20dp"
-            android:text="性别"
-            android:textColor="@color/colorBig"
-            android:textSize="15sp" />
-    </RelativeLayout>
-
-    <RelativeLayout
         android:id="@+id/rl_password"
         android:layout_width="match_parent"
         android:layout_height="50dp"

@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
+
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.xihua.wx.weixiao"
@@ -9,11 +10,22 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+
+        manifestPlaceholders = [
+                JPUSH_APPKEY : "1105190823010579#weixiao",//值来自开发者平台取得的AppKey
+                JPUSH_CHANNEL: "default_developer",
+        ]
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
         }
     }
 }
@@ -39,5 +51,8 @@ dependencies {
     implementation files('libs/library-1.0.19.jar')
     //九宫格
     implementation 'com.jaeger.ninegridimageview:library:1.1.1'
+    /**/
+    //implementation 'com.hyphenate:hyphenate-sdk-lite:3.2.3'
+    implementation files('libs/hyphenatechat_3.2.3.jar')
 
 }

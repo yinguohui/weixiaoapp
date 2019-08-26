@@ -57,7 +57,6 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                 case 1:
                     VolleyUtils.loadImage(SettingActivity.this,iv_image,response.getUserImg());
                     tv_name.setText(response.getUserName());
-                    tv_sex.setText(response.getUserBirth()+"");
                     tv_sign.setText(response.getUserSign());
                     tv_phone.setText(response.getUserTel());
                     break;
@@ -70,13 +69,11 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
 
         tv_phone = findViewById(R.id.tv_phone);
         rl_name = findViewById(R.id.rl_name);
-        rl_sex = findViewById(R.id.rl_sex);
         rl_sign = findViewById(R.id.rl_sign);
         rl_image = findViewById(R.id.rl_image);
         rl_password =findViewById(R.id.rl_password);
 
         tv_name = findViewById(R.id.tv_name);
-        tv_sex = findViewById(R.id.tv_sex);
         tv_sign = findViewById(R.id.tv_sign);
 
         iv_back.setOnClickListener(this);

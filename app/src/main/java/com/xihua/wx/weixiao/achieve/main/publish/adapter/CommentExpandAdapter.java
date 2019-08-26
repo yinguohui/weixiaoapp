@@ -16,6 +16,7 @@ import com.xihua.wx.weixiao.R;
 import com.xihua.wx.weixiao.bean.CommentDetailBean;
 import com.xihua.wx.weixiao.bean.ReplyDetailBean;
 import com.xihua.wx.weixiao.bean.Review;
+import com.xihua.wx.weixiao.utils.DateUtils;
 import com.xihua.wx.weixiao.utils.VolleyUtils;
 import com.xihua.wx.weixiao.utils.image.CircleNetworkImageImage;
 import com.xihua.wx.weixiao.vo.response.ReviewResponse;
@@ -87,7 +88,7 @@ public class CommentExpandAdapter extends BaseExpandableListAdapter {
         }
         VolleyUtils.loadImage(context,groupHolder.logo,reviews.get(groupPosition).getUser().getUserImg());
         groupHolder.tv_name.setText(reviews.get(groupPosition).getUser().getUserName());
-        groupHolder.tv_time.setText(reviews.get(groupPosition).getReviewCreateTime()+"");
+        groupHolder.tv_time.setText(DateUtils.parseDate(reviews.get(groupPosition).getReviewCreateTime()));
         groupHolder.tv_content.setText(reviews.get(groupPosition).getReviewContent());
         return convertView;
     }

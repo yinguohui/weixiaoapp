@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:circle="http://schemas.android.com/apk/res/com.xihua.wx.weixiao"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -11,13 +12,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center_vertical">
-
-        <ImageView
+        <com.xihua.wx.weixiao.utils.image.CircleNetworkImageImage
             android:id="@+id/iv_avator_recieve"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:background="@mipmap/avator1"
-            android:layout_marginRight="8dp"/>
+            circle:civ_border_width="1dp"
+            circle:civ_border_color="@android:color/transparent"
+            circle:civ_border_overlay="true"
+            circle:civ_fill_color="@android:color/transparent"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="8dp" />
 
         <TextView
             android:id="@+id/tv_nickname_recieve"
@@ -52,13 +56,6 @@
             android:gravity="right">
 
             <TextView
-                android:id="@+id/tv_nickname_send"
-                android:text="李晨"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"/>
-
-            <TextView
                 android:id="@+id/tv_msg_send"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -67,13 +64,16 @@
                 android:layout_marginTop="5dp"
                 android:gravity="center"/>
         </LinearLayout>
-
-        <ImageView
+        <com.xihua.wx.weixiao.utils.image.CircleNetworkImageImage
             android:id="@+id/iv_avator_send"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:background="@mipmap/avator2"
-            android:layout_marginLeft="8dp"/>
+            circle:civ_border_width="1dp"
+            circle:civ_border_color="@android:color/transparent"
+            circle:civ_border_overlay="true"
+            circle:civ_fill_color="@android:color/transparent"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="8dp" />
     </LinearLayout>
 
 </LinearLayout>

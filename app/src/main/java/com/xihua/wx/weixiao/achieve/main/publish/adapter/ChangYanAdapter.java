@@ -16,6 +16,7 @@ import com.jaeger.ninegridimageview.NineGridImageViewAdapter;
 import com.jcodecraeer.xrecyclerview.XRecyclerView;
 import com.xihua.wx.weixiao.R;
 import com.xihua.wx.weixiao.achieve.main.publish.activity.ChangYanDetailActivity;
+import com.xihua.wx.weixiao.utils.DateUtils;
 import com.xihua.wx.weixiao.utils.SpUtil;
 import com.xihua.wx.weixiao.utils.ToastUtil;
 import com.xihua.wx.weixiao.utils.VolleyUtils;
@@ -55,7 +56,7 @@ public class ChangYanAdapter extends XRecyclerView.Adapter implements View.OnCli
                 VolleyUtils.loadImage(context, ((ViewHolder) holder).iv_header, bean.getUser().getUserImg());
             }
             ((ViewHolder) holder).tv_name.setText(bean.getUser().getUserName());
-            ((ViewHolder) holder).tv_time.setText(bean.getTopicCreateTime()+"");
+            ((ViewHolder) holder).tv_time.setText(DateUtils.parseDate(bean.getTopicCreateTime()));
             ((ViewHolder) holder).tv_content.setText(bean.getTopicContent());
             ((ViewHolder) holder).iv_video.setAdapter(nineGridImageViewAdapter);
             List<String> stringList = new ArrayList<>();
@@ -64,7 +65,7 @@ public class ChangYanAdapter extends XRecyclerView.Adapter implements View.OnCli
                 stringList.add(s);
             }
             ((ViewHolder) holder).iv_video.setImagesData(stringList);
-            ((ViewHolder) holder).tv_like.setText(bean.getTopicLike()+"");
+            //((ViewHolder) holder).tv_like.setText(bean.getTopicLike()+"");
             ((ViewHolder) holder).tv_comment.setText(bean.getTopicComment()+"");
             ((ViewHolder) holder).ll_comment.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -113,7 +114,7 @@ public class ChangYanAdapter extends XRecyclerView.Adapter implements View.OnCli
         public NineGridImageView iv_video;
 
         public LinearLayout ll_like;
-        public TextView tv_like;
+        //public TextView tv_like;
 
         public LinearLayout ll_comment;
         public TextView tv_comment;
@@ -129,7 +130,7 @@ public class ChangYanAdapter extends XRecyclerView.Adapter implements View.OnCli
             iv_video =  itemView.findViewById(R.id.iv_video);
 
             ll_like = itemView.findViewById(R.id.ll_like);
-            tv_like =  itemView.findViewById(R.id.tv_like);
+            //tv_like =  itemView.findViewById(R.id.tv_like);
             ll_comment = itemView.findViewById(R.id.ll_comment);
             tv_comment = itemView.findViewById(R.id.tv_comment);
         }

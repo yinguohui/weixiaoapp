@@ -31,7 +31,7 @@ import okhttp3.Response;
 public class ModifyPasswordActivity extends AppCompatActivity implements View.OnClickListener {
     private ImageView iv_back;
     private TextView tv_modifypassword;
-    private EditText et_password;
+    private EditText et_password,oldpassword;
     String data = "";
     Gson gson = new Gson();
     private Map<String,String> map = new HashMap<>();
@@ -62,6 +62,7 @@ public class ModifyPasswordActivity extends AppCompatActivity implements View.On
         iv_back = findViewById(R.id.iv_back);
         tv_modifypassword = findViewById(R.id.tv_modifypassword);
         et_password = findViewById(R.id.modifypassword);
+        oldpassword = findViewById(R.id.oldpassword);
 
         iv_back.setOnClickListener(this);
         tv_modifypassword.setOnClickListener(this);

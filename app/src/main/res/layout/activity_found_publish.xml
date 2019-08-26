@@ -28,13 +28,13 @@
             android:textColor="@color/colorWhite"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:text="寻物启事"/>
+            android:text="失物招领"/>
     </RelativeLayout>
     <ImageView
         android:layout_width="match_parent"
-        android:src="@drawable/found_info"
+        android:src="@drawable/lost_info"
         android:scaleType="fitXY"
-        android:layout_height="100dp" />
+        android:layout_height="120dp" />
     <View
         android:layout_width="match_parent"
         android:layout_height="1px"
@@ -64,7 +64,7 @@
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:textSize="16sp"
-            android:text="拾取地点"/>
+            android:text="丢失地点"/>
         <EditText
             android:id="@+id/lost_place"
             android:textSize="16sp"

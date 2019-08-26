@@ -12,6 +12,9 @@ import com.xihua.wx.weixiao.achieve.main.info.activity.InfoActivity;
 import com.xihua.wx.weixiao.achieve.main.lost.activity.LostActivity;
 import com.xihua.wx.weixiao.achieve.main.publish.activity.PublishActivity;
 import com.xihua.wx.weixiao.achieve.main.sell.SellActivity;
+import com.xihua.wx.weixiao.achieve.message.ChatActivity;
+import com.xihua.wx.weixiao.achieve.message.RegistActivity;
+import com.xihua.wx.weixiao.achieve.message.StartActivity;
 
 public class MainFragment extends BaseFragment implements View.OnClickListener {
     LinearLayout ll_sell,ll_publish,ll_donation,ll_lost,ll_info;

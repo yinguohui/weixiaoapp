@@ -111,7 +111,7 @@ public class InfoActivity extends AppCompatActivity implements View.OnClickListe
                     switch (mediaType) {
                         case 1:
                             // 预览图片 可自定长按保存路径
-                            //PictureSelector.create(MainActivity.this).themeStyle(themeId).externalPicturePreview(position, "/custom_file", selectList);
+                            //PictureSelector.create(MainMessageActivity.this).themeStyle(themeId).externalPicturePreview(position, "/custom_file", selectList);
                             PictureSelector.create(InfoActivity.this).themeStyle(R.style.picture_QQ_style).openExternalPreview(position, selectList);
                             break;
                     }

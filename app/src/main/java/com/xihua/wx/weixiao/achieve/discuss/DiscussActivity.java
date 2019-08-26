@@ -34,11 +34,10 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class DiscussActivity extends AppCompatActivity {
-    private ArrayList<MsgContentBean> datas = new ArrayList<>();
     private RecyclerView recyclerView;
     private MsgAdapter adapter;
     private EditText etInput;
-    private TextView send;
+    private TextView send,title;
     List<ChatAllResponse> list = new ArrayList<>();
     private Gson gson = new Gson();
     Runnable  runnable;
@@ -52,6 +51,7 @@ public class DiscussActivity extends AppCompatActivity {
 
     public void initContentView() {
         etInput = findViewById(R.id.et_input);
+        title = findViewById(R.id.title);
         recyclerView = findViewById(R.id.recyclerview);
         send = findViewById(R.id.send);
         recyclerView.setLayoutManager(new LinearLayoutManager(DiscussActivity.this));
@@ -130,6 +130,7 @@ public class DiscussActivity extends AppCompatActivity {
         });
     }
     private void exedata(){
+        title.setText(list.get(0).getUser().getUserName());
         adapter = new MsgAdapter(DiscussActivity.this,list);
         recyclerView.setAdapter(adapter);
     }
@@ -144,9 +145,8 @@ public class DiscussActivity extends AppCompatActivity {
 //            recyclerView.scrollToPosition(datas.size()-1);
             etInput.setText("");
             String id = SpUtil.getString(DiscussActivity.this, "userid", "-1");
-            request.setChatReviceId(list.get(0).getUser().getUserId());
-            if(list.get(0).getUser().getUserId()!=Integer.parseInt(id))
             request.setChatSendId(Integer.parseInt(id));
+            request.setChatReviceId(getIntent().getIntExtra("send_id",-1));
             add(request);
         }
     }
@@ -162,7 +162,7 @@ public class DiscussActivity extends AppCompatActivity {
             public void run(){
                 initdata();
                 //延迟1秒执行
-                handler.postDelayed(this, 1000);
+                handler.postDelayed(this, 10000);
             }
         };
         handler.post(runnable);

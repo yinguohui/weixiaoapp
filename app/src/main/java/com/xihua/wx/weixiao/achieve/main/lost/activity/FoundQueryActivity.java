@@ -20,6 +20,8 @@ import com.xihua.wx.weixiao.bean.ApiResult;
 import com.xihua.wx.weixiao.bean.IdRequest;
 import com.xihua.wx.weixiao.query.LostInfoQuery;
 import com.xihua.wx.weixiao.utils.OkHttpUtil;
+import com.xihua.wx.weixiao.utils.SpUtil;
+import com.xihua.wx.weixiao.utils.ToastUtil;
 import com.xihua.wx.weixiao.vo.response.LostinfoResponse;
 
 import java.io.IOException;
@@ -104,6 +106,11 @@ public class FoundQueryActivity extends AppCompatActivity implements View.OnClic
         }
     }
     private void initData(){
+        String id = SpUtil.getString(FoundQueryActivity.this, "userid", "-1");
+        if ("-1".equals(id)) {
+            ToastUtil.showToast(FoundQueryActivity.this, "请登录");
+            return;
+        }
         IdRequest idRequest = new IdRequest();
         idRequest.setId(0);
         OkHttpUtil.doPost("http://192.168.43.240:8080/lostinfo/queryAllLost", gson.toJson(idRequest),new Callback(){

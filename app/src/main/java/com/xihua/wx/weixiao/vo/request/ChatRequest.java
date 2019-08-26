@@ -16,6 +16,8 @@ public class ChatRequest implements Serializable {
     private Integer chatReviceId;
     private String chatContent;
 
+    private Integer chatUserId;
+
     public Integer getChatSendId() {
         return chatSendId;
     }
@@ -40,4 +42,11 @@ public class ChatRequest implements Serializable {
         this.chatContent = chatContent;
     }
 
+    public Integer getChatUserId() {
+        return chatUserId;
+    }
+
+    public void setChatUserId(Integer chatUserId) {
+        this.chatUserId = chatUserId;
+    }
 }

@@ -21,6 +21,7 @@ import com.xihua.wx.weixiao.R;
 import com.xihua.wx.weixiao.achieve.discuss.DiscussActivity;
 import com.xihua.wx.weixiao.bean.ApiResult;
 import com.xihua.wx.weixiao.bean.IdRequest;
+import com.xihua.wx.weixiao.utils.DateUtils;
 import com.xihua.wx.weixiao.utils.OkHttpUtil;
 import com.xihua.wx.weixiao.utils.SpUtil;
 import com.xihua.wx.weixiao.utils.ToastUtil;
@@ -82,7 +83,9 @@ public class SellBuyDetailActivity extends AppCompatActivity implements View.OnC
                 finish();
                 break;
             case R.id.ll_user:
-               change();
+                Intent intent = new Intent(SellBuyDetailActivity.this,DiscussActivity.class);
+                intent.putExtra("send_id",bean.getUser().getUserId());
+                startActivity(intent);
                break;
             case R.id.bt_delete:
                 delete();
@@ -156,7 +159,7 @@ public class SellBuyDetailActivity extends AppCompatActivity implements View.OnC
     private void getresult(GoodsDetailResponse response){
         VolleyUtils.loadImage(SellBuyDetailActivity.this,iv_header,response.getUser().getUserImg());
         tv_name.setText(response.getUser().getUserName());
-        tv_publish_time.setText(new Date(response.getGoodsCreateTime()).toString());
+        tv_publish_time.setText(DateUtils.parseDate(response.getGoodsCreateTime()));
         tv_goodsname.setText("物品名："+response.getGoodsName());
         tv_goodsdesciption.setText("描述："+response.getGoodsDesciption());
         tv_place.setText("地点："+response.getGoodsPlace());
@@ -183,9 +186,6 @@ public class SellBuyDetailActivity extends AppCompatActivity implements View.OnC
         }else {
             ll_user = findViewById(R.id.ll_user);
             ll_user.setOnClickListener(this);
-            Intent intent = new Intent(SellBuyDetailActivity.this,DiscussActivity.class);
-            intent.putExtra("user_id",bean.getUser().getUserId());
-            startActivity(intent);
         }
     }
 }

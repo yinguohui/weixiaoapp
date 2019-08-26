@@ -48,6 +48,7 @@ public class LostInfoActivity extends AppCompatActivity implements View.OnClickL
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case 0:
+                    ToastUtil.showToast(LostInfoActivity.this,"查询不能为空");
                     break;
                 case 1:
                     adapter = new LostInfoAdapter(list,LostInfoActivity.this);
@@ -103,14 +104,39 @@ public class LostInfoActivity extends AppCompatActivity implements View.OnClickL
                 finish();
                 break;
             case R.id.iv_search:
-                //search();
+                search();
                 break;
         }
     }
     private void initData(){
         IdRequest idRequest = new IdRequest();
-        idRequest.setId(1);
         OkHttpUtil.doPost("http://192.168.43.240:8080/lostinfo/queryAllLost", gson.toJson(idRequest),new Callback(){
+            @Override
+            public void onFailure(Call call, IOException e) {
+                handler.sendEmptyMessage(-1);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    ApiResult apiResult = gson.fromJson(response.body().string(),ApiResult.class);
+                    if (apiResult.getCode()==200){
+                        list = gson.fromJson(gson.toJson(apiResult.getData()),new TypeToken<List<LostinfoResponse>>(){}.getType());
+                        handler.sendEmptyMessage(1);
+                    }
+                }
+            }
+        });
+    }
+    private void search(){
+        if (et_infofind.getText().equals("")){
+            handler.sendEmptyMessage(0);
+            return;
+        }
+        LostInfoQuery lostInfoQuery = new LostInfoQuery();
+        lostInfoQuery.setLostType(1);
+        lostInfoQuery.setKey(et_infofind.getText().toString());
+        OkHttpUtil.doPost("http://192.168.43.240:8080/lostinfo/queryAllFound", gson.toJson(lostInfoQuery),new Callback(){
             @Override
             public void onFailure(Call call, IOException e) {
                 handler.sendEmptyMessage(-1);

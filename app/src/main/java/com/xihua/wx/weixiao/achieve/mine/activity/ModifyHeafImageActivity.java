@@ -83,7 +83,7 @@ public class ModifyHeafImageActivity extends AppCompatActivity implements View.O
                     switch (mediaType) {
                         case 1:
                             // 预览图片 可自定长按保存路径
-                            //PictureSelector.create(MainActivity.this).themeStyle(themeId).externalPicturePreview(position, "/custom_file", selectList);
+                            //PictureSelector.create(MainMessageActivity.this).themeStyle(themeId).externalPicturePreview(position, "/custom_file", selectList);
                             PictureSelector.create(ModifyHeafImageActivity.this).themeStyle(R.style.picture_QQ_style).openExternalPreview(position, selectList);
                             break;
                     }

@@ -1,11 +1,15 @@
 package com.xihua.wx.weixiao.achieve.login.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.xihua.wx.weixiao.R;
@@ -17,8 +21,6 @@ import com.xihua.wx.weixiao.utils.VerificationUtils;
 import com.xihua.wx.weixiao.vo.request.LoginRequest;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 
 import okhttp3.Call;
@@ -28,7 +30,10 @@ import okhttp3.Response;
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener{
 
     private EditText et_phone,et_password,et_config_password,et_code;
+    private CheckBox check;
+    private RelativeLayout rl_renzheng;
     private CheckCode checkCode;
+    private TextView xieyi;
     private String shoujihao="";
     private String newmima = "";
     private String code ="";
@@ -59,9 +64,15 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         et_phone =  findViewById(R.id.et_phone);
         et_code = findViewById(R.id.et_code);
         checkCode = findViewById(R.id.bt_code);
+        rl_renzheng = findViewById(R.id.rl_renzheng);
+        check = findViewById(R.id.check);
+        xieyi = findViewById(R.id.xieyi);
+
+        rl_renzheng.setOnClickListener(this);
         findViewById(R.id.bt_code).setOnClickListener(this);
         findViewById(R.id.bt_register).setOnClickListener(this);
         findViewById(R.id.iv_back).setOnClickListener(this);
+        findViewById(R.id.xieyi).setOnClickListener(this);
     }
 
 
@@ -79,6 +90,12 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 break;
             case R.id.iv_back:
                 finish();
+                break;
+            case R.id.rl_renzheng:
+                startActivity(new Intent(RegisterActivity.this,IdentifyActivity.class));
+                break;
+            case R.id.xieyi:
+                startActivity(new Intent(RegisterActivity.this,StatementActivity.class));
                 break;
         }
 

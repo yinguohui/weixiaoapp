@@ -9,20 +9,35 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
 import com.xihua.wx.weixiao.R;
 import com.xihua.wx.weixiao.achieve.discuss.DiscussActivity;
 import com.xihua.wx.weixiao.achieve.discuss.view.RecyclerItemView;
 import com.xihua.wx.weixiao.achieve.main.info.activity.MyInfoActivity;
+import com.xihua.wx.weixiao.bean.ApiResult;
+import com.xihua.wx.weixiao.bean.IdRequest;
+import com.xihua.wx.weixiao.query.ChatQuery;
+import com.xihua.wx.weixiao.utils.DateUtils;
+import com.xihua.wx.weixiao.utils.OkHttpUtil;
 import com.xihua.wx.weixiao.utils.RecyclerUtils;
+import com.xihua.wx.weixiao.utils.SpUtil;
+import com.xihua.wx.weixiao.utils.ToastUtil;
 import com.xihua.wx.weixiao.utils.VolleyUtils;
+import com.xihua.wx.weixiao.utils.image.CircleNetworkImageImage;
 import com.xihua.wx.weixiao.vo.response.ChatAllResponse;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 /**
  * Created by Administrator on 2018/3/16 0016.
@@ -36,7 +51,6 @@ public class RecyclerViewAdapter
     private Context context;
 
     private List<ChatAllResponse> list = new ArrayList<>();
-    private List<String> datasTime;     //时间（消息时间）
 
     private onSlidingViewClickListener onSvcl;
 
@@ -61,18 +75,21 @@ public class RecyclerViewAdapter
     @Override
     public void onBindViewHolder(final SimpleHolder holder, final int position) {
         final ChatAllResponse response = list.get(position);
-        Glide.with(context) .load(response.getUser().getUserImg()) .into(holder.image);
+        if (null == response||null==response.getUser()){
+            holder.re_layout.setVisibility(View.INVISIBLE);
+            return;
+
+        }
+        VolleyUtils.loadImage(context, holder.image,response.getUser().getUserImg());
         holder.title.setText(response.getUser().getUserName());
         holder.content.setText(response.getChatContent());
-        holder.time.setText(response.getChatCreateTime()+"");
+        holder.time.setText(DateUtils.parseDate(response.getChatCreateTime()));
         holder.layout_left.getLayoutParams().width = RecyclerUtils.getScreenWidth(context);
-
         holder.layout_left.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(context,"做出操作，进入新的界面或弹框",Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(context,DiscussActivity.class);
-                intent.putExtra("send_id",response.getChatSendId());
+                intent.putExtra("send_id",response.getUser().getUserId());
                 context.startActivity(intent);
                 //判断是否有删除菜单打开
                 if (menuIsOpen()) {
@@ -84,18 +101,35 @@ public class RecyclerViewAdapter
                 }
             }
         });
-        holder.other.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(context,"其他："+position,Toast.LENGTH_SHORT).show();
-            }
-        });
         holder.delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(context,"删除了："+position,Toast.LENGTH_SHORT).show();
+                delete(response.getUser().getUserId());
                 int subscript = holder.getLayoutPosition();
                 onSvcl.onDeleteBtnCilck(view,subscript);
+            }
+        });
+    }
+
+    private void delete(int sendid) {
+        final Gson gson =new Gson();
+        String id = SpUtil.getString(context, "userid", "-1");
+        ChatQuery chatQuery = new ChatQuery();
+        chatQuery.setSendId(sendid);
+        chatQuery.setReceiveId(Integer.parseInt(id));
+        OkHttpUtil.doPost("http://192.168.43.240:8080/chat/delete", gson.toJson(chatQuery),new Callback(){
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    ApiResult apiResult = gson.fromJson(response.body().string(),ApiResult.class);
+                    if (apiResult.getCode()==200){
+                        Toast.makeText(context,"删除成功",Toast.LENGTH_SHORT).show();
+                    }
+                }
             }
         });
     }
@@ -121,24 +155,23 @@ public class RecyclerViewAdapter
 
     class SimpleHolder extends  RecyclerView.ViewHolder {
 
-        public ImageView image;
+        public CircleNetworkImageImage image;
         public TextView title;
         public TextView content;
         public TextView time;
-        public TextView other;
         public TextView delete;
         public LinearLayout layout_left;
+        private RelativeLayout re_layout;
         public SimpleHolder(View view) {
             super(view);
 
-            image = (ImageView) view.findViewById(R.id.image);
+            image =  view.findViewById(R.id.image);
             title = (TextView) view.findViewById(R.id.title);
             content = (TextView) view.findViewById(R.id.content);
             time = (TextView) view.findViewById(R.id.time);
-            other = (TextView) view.findViewById(R.id.other);
             delete = (TextView) view.findViewById(R.id.delete);
             layout_left = (LinearLayout) view.findViewById(R.id.layout_left);
-
+            re_layout = view.findViewById(R.id.re_layout);
             ((RecyclerItemView)view).setSlidingButtonListener(RecyclerViewAdapter.this);
         }
     }
@@ -146,7 +179,7 @@ public class RecyclerViewAdapter
     //删除数据
     public void removeData(int position){
         list.remove(position);
-//        notifyDataSetChanged();
+        notifyDataSetChanged();
         notifyItemRemoved(position);
 
     }

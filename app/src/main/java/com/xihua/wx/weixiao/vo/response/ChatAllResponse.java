@@ -14,7 +14,17 @@ public class ChatAllResponse {
     private String chatContent;
     private Integer chatStatus;
     private Long chatCreateTime;
+    private Integer chatUserId;
+    private Integer chatReceiveId;
     private User user;
+
+    public Integer getChatReceiveId() {
+        return chatReceiveId;
+    }
+
+    public void setChatReceiveId(Integer chatReceiveId) {
+        this.chatReceiveId = chatReceiveId;
+    }
 
     public Integer getChatId() {
         return chatId;
@@ -60,7 +70,17 @@ public class ChatAllResponse {
         return user;
     }
 
+    public Integer getChatUserId() {
+        return chatUserId;
+    }
+
+    public void setChatUserId(Integer chatUserId) {
+        this.chatUserId = chatUserId;
+    }
+
     public void setUser(User user) {
         this.user = user;
     }
+
+
 }

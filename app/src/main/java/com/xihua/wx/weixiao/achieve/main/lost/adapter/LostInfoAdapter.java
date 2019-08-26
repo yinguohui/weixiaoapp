@@ -16,6 +16,7 @@ import com.xihua.wx.weixiao.R;
 import com.xihua.wx.weixiao.achieve.main.lost.activity.LostInfoDetailActivity;
 import com.xihua.wx.weixiao.bean.GoodsResponseBean;
 import com.xihua.wx.weixiao.bean.LostinfoList;
+import com.xihua.wx.weixiao.utils.DateUtils;
 import com.xihua.wx.weixiao.vo.response.LostinfoResponse;
 
 import java.util.List;
@@ -42,7 +43,7 @@ public class LostInfoAdapter extends XRecyclerView.Adapter{
             final LostinfoResponse bean = list.get(position);
             Glide.with(context).load(bean.getLostinfoImg().split("$%")[0]).into(((ViewHolder) holder).iv_lostinfo_img);
             ((ViewHolder) holder).tv_name.setText(bean.getUser().getUserName());
-            ((ViewHolder) holder).tv_time.setText(bean.getLostinfoCreateTime()+"");
+            ((ViewHolder) holder).tv_time.setText(DateUtils.parseDate(bean.getLostinfoCreateTime()));
             ((ViewHolder) holder).tv_description.setText(bean.getLostinfoDescription());
             ((ViewHolder) holder).ll_lostinfo.setOnClickListener(new View.OnClickListener() {
                 @Override
