@@ -37,10 +37,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
         </activity>
         <activity android:name=".achieve.main.util.PhotoSelectorActivity">
 
@@ -88,11 +88,11 @@
         <activity android:name=".achieve.message.StartActivity"></activity>
         <activity android:name=".achieve.message.ChatActivity"></activity>
         <activity android:name=".achieve.message.RegistActivity">
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity android:name=".achieve.login.activity.IdentifyActivity"></activity>
         <activity android:name=".achieve.login.activity.LegalStatementActivity"></activity>

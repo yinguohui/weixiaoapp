@@ -33,6 +33,7 @@ import com.luck.picture.lib.permissions.RxPermissions;
 import com.luck.picture.lib.tools.PictureFileUtils;
 import com.xihua.wx.weixiao.R;
 import com.xihua.wx.weixiao.achieve.main.adapter.GridImageAdapter;
+import com.xihua.wx.weixiao.achieve.main.util.TestActivity;
 import com.xihua.wx.weixiao.bean.ApiResult;
 import com.xihua.wx.weixiao.bean.DonationBean;
 import com.xihua.wx.weixiao.bean.DonationRequest;
@@ -86,7 +87,8 @@ public class DonationActivity extends AppCompatActivity implements View.OnClickL
         init();
     }
     private void init(){
-        iv_back = findViewById(R.id.iv_back);
+       findViewById(R.id.iv_back).setOnClickListener(this);
+
         et_donation_name = findViewById(R.id.et_donation_name);
         et_donation_num = findViewById(R.id.et_donation_num);
         et_donation_location = findViewById(R.id.et_donation_location);
@@ -95,121 +97,23 @@ public class DonationActivity extends AppCompatActivity implements View.OnClickL
         bt_donation_sure = findViewById(R.id.bt_donation_sure);
 
         initimage();
-        iv_back.setOnClickListener(this);
         bt_donation_sure.setOnClickListener(this);
-        et_donation_time.setOnTouchListener(this);
+        //et_donation_time.setOnTouchListener(this);
 
     }
     private void initimage(){
         recyclerView = findViewById(R.id.recycler);
         GridLayoutManager manager = new GridLayoutManager(DonationActivity.this, 3, GridLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(manager);
-        adapter = new GridImageAdapter(DonationActivity.this, onAddPicClickListener);
+        TestActivity testActivity = new TestActivity(DonationActivity.this);
+
+        adapter = new GridImageAdapter(DonationActivity.this, testActivity.onAddPicClickListener);
         adapter.setList(selectList);
         adapter.setSelectMax(3);
         recyclerView.setAdapter(adapter);
-        adapter.setOnItemClickListener(new GridImageAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(int position, View v) {
-                if (selectList.size() > 0) {
-                    LocalMedia media = selectList.get(position);
-                    String pictureType = media.getPictureType();
-                    int mediaType = PictureMimeType.pictureToVideo(pictureType);
-                    switch (mediaType) {
-                        case 1:
-                            // 预览图片 可自定长按保存路径
-                            //PictureSelector.create(MainMessageActivity.this).themeStyle(themeId).externalPicturePreview(position, "/custom_file", selectList);
-                            PictureSelector.create(DonationActivity.this).themeStyle(R.style.picture_QQ_style).openExternalPreview(position, selectList);
-                            break;
-                    }
-                }
-            }
-        });
+        testActivity.setAdapter(adapter);
 
-        // 清空图片缓存，包括裁剪、压缩后的图片 注意:必须要在上传完成后调用 必须要获取权限
-        RxPermissions permissions = new RxPermissions(this);
-        permissions.request(Manifest.permission.WRITE_EXTERNAL_STORAGE).subscribe(new Observer<Boolean>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-            }
-
-            @Override
-            public void onNext(Boolean aBoolean) {
-                if (aBoolean) {
-                    PictureFileUtils.deleteCacheDirFile(DonationActivity.this);
-                } else {
-                    Toast.makeText(DonationActivity.this,
-                            getString(R.string.picture_jurisdiction), Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onError(Throwable e) {
-            }
-
-            @Override
-            public void onComplete() {
-            }
-        });
     }
-    private GridImageAdapter.onAddPicClickListener onAddPicClickListener = new GridImageAdapter.onAddPicClickListener() {
-        @Override
-        public void onAddPicClick() {
-            //相册or单独拍照
-            if (true) {
-                // 进入相册 以下是例子：不需要的api可以不写
-                PictureSelector.create(DonationActivity.this)
-                        .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()、音频.ofAudio()
-                        .theme(R.style.picture_QQ_style)// 主题样式设置 具体参考 values/styles   用法：R.style.picture.white.style
-                        .maxSelectNum(3)// 最大图片选择数量
-                        .minSelectNum(1)// 最小选择数量
-                        .imageSpanCount(3)// 每行显示个数
-                        .selectionMode(PictureConfig.MULTIPLE )// 多选 or 单选
-                        // 是否可预览图片
-                        .previewImage(true)// 是否可预览图片
-                        .isCamera(true)// 是否显示拍照按钮
-                        .isZoomAnim(true)// 图片列表点击 缩放效果 默认true
-                        .enableCrop(false)// 是否裁剪
-                        .compress(true)// 是否压缩
-                        .glideOverride(160, 160)// glide 加载宽高，越小图片列表越流畅，但会影响列表图片浏览的清晰度
-                        .withAspectRatio(1, 1)// 裁剪比例 如16:9 3:2 3:4 1:1 可自定义
-                        .hideBottomControls(true)// 是否显示uCrop工具栏，默认不显示
-                        .openClickSound(true)// 是否开启点击声音
-                        .selectionMedia(selectList)// 是否传入已选图片
-                        .minimumCompressSize(100)// 小于100kb的图片不压缩
-                        .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
-            } else {
-                // 单独拍照
-                PictureSelector.create(DonationActivity.this)
-                        .openCamera(PictureMimeType.ofImage())// 单独拍照，也可录像或也可音频 看你传入的类型是图片or视频
-                        .theme(R.style.picture_QQ_style)// 主题样式设置 具体参考 values/styles
-                        .maxSelectNum(3)// 最大图片选择数量
-                        .minSelectNum(1)// 最小选择数量
-                        .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选
-                        .previewImage(true)// 是否可预览图片
-                        .previewVideo(false)// 是否可预览视频
-                        .enablePreviewAudio(false) // 是否可播放音频
-                        .isCamera(true)// 是否显示拍照按钮
-                        .enableCrop(false)// 是否裁剪
-                        .compress(true)// 是否压缩
-                        .glideOverride(160, 160)// glide 加载宽高，越小图片列表越流畅，但会影响列表图片浏览的清晰度
-                        .withAspectRatio(1, 1)// 裁剪比例 如16:9 3:2 3:4 1:1 可自定义
-                        .hideBottomControls(true)// 是否显示uCrop工具栏，默认不显示
-                        .isGif(false)// 是否显示gif图片
-                        .freeStyleCropEnabled(false)// 裁剪框是否可拖拽
-                        .circleDimmedLayer(false)// 是否圆形裁剪
-                        .showCropFrame(false)// 是否显示裁剪矩形边框 圆形裁剪时建议设为false
-                        .showCropGrid(false)// 是否显示裁剪矩形网格 圆形裁剪时建议设为false
-                        .openClickSound(true)// 是否开启点击声音
-                        .selectionMedia(selectList)// 是否传入已选图片
-                        .previewEggs(false)//预览图片时 是否增强左右滑动图片体验(图片滑动一半即可看到上一张是否选中)
-                        .minimumCompressSize(100)// 小于100kb的图片不压缩
-                        .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
-            }
-        }
-
-    };
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -228,21 +132,6 @@ public class DonationActivity extends AppCompatActivity implements View.OnClickL
             }
         }
     }
-
-    /**
-     * 自定义压缩存储地址
-     *
-     * @return
-     */
-    private String getPath() {
-        String path = Environment.getExternalStorageDirectory() + "/Luban/image/";
-        File file = new File(path);
-        if (file.mkdirs()) {
-            return path;
-        }
-        return path;
-    }
-
     @Override
     public void onClick(View v) {
         switch (v.getId()){
@@ -270,9 +159,9 @@ public class DonationActivity extends AppCompatActivity implements View.OnClickL
         if (check()){
             request.setDonationName(StringUtils.getEidtContent(et_donation_name));
             request.setDoantionPlace(StringUtils.getEidtContent(et_donation_location));
-//            request.setDoantionTime(Long.parseLong(StringUtils.getEidtContent(et_donation_time)));
             request.setDoantionDescrption(StringUtils.getEidtContent(et_donation_info));
-            request.setDonationNum(et_donation_num.getId());
+            request.setDonationNum(StringUtils.getEidtContentInteger(et_donation_num));
+            request.setDoantionTime(System.currentTimeMillis());
             String id = SpUtil.getString(DonationActivity.this, "userid", "-1");
             if ("-1".equals(id)) {
                 ToastUtil.showToast(DonationActivity.this, "请登录");
@@ -289,7 +178,6 @@ public class DonationActivity extends AppCompatActivity implements View.OnClickL
         OkHttpUtil.uploadmany("http:192.168.43.240:8080/donation/add", MapUtil.objectToMap(request), stringList, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-
             }
 
             @Override
@@ -297,7 +185,8 @@ public class DonationActivity extends AppCompatActivity implements View.OnClickL
                 if (response.isSuccessful()){
                     ApiResult apiResult = gson.fromJson(response.body().string(),ApiResult.class);
                     if (apiResult.getCode()==200){
-
+                        handler.sendEmptyMessage(1);
+                        finish();
                     }
                 }
             }

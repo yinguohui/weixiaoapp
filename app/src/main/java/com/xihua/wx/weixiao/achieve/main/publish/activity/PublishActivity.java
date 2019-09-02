@@ -33,7 +33,6 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class PublishActivity extends AppCompatActivity implements View.OnClickListener {
-    ImageView iv_back;
     TextView tv_publish;
     RelativeLayout rl_belongme,rl_aboutme;
     XRecyclerView xc_publish;
@@ -65,16 +64,11 @@ public class PublishActivity extends AppCompatActivity implements View.OnClickLi
         init();
     }
     private void init(){
-        iv_back = findViewById(R.id.iv_back);
-        tv_publish = findViewById(R.id.tv_publish);
-        rl_belongme = findViewById(R.id.rl_belongme);
-        rl_aboutme = findViewById(R.id.rl_aboutme);
-        xc_publish = findViewById(R.id.xc_publish);
+        findViewById(R.id.iv_back).setOnClickListener(this);
+        findViewById(R.id.tv_publish).setOnClickListener(this);
+        findViewById(R.id.rl_aboutme).setOnClickListener(this);
+        findViewById(R.id.rl_belongme).setOnClickListener(this);
 
-        iv_back.setOnClickListener(this);
-        tv_publish.setOnClickListener(this);
-        rl_belongme.setOnClickListener(this);
-        rl_aboutme.setOnClickListener(this);
 
         xc_publish = findViewById(R.id.xc_publish);
         manager = new LinearLayoutManager(PublishActivity.this);
@@ -91,21 +85,13 @@ public class PublishActivity extends AppCompatActivity implements View.OnClickLi
             //刷新
             @Override
             public void onRefresh() {
-                topicQuery.setCurrentPage(1);
-                topicQuery.setPageSize(10);
-                initData(topicQuery);
+                initData();
                 xc_publish.refreshComplete();
             }
             //加载更多
             @Override
             public void onLoadMore() {
-                if (list.size()==10){
-                    topicQuery.setCurrentPage(topicQuery.getCurrentPage());
-                    initData(topicQuery);
-                    xc_publish.refreshComplete();
-                }else {
-                    xc_publish.refreshComplete();
-                }
+                xc_publish.refreshComplete();
             }
         });
         xc_publish.refresh();
@@ -129,9 +115,9 @@ public class PublishActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
-    private void initData(TopicQuery topicQuery){
+    private void initData(){
         //okhttp获取数据--
-        OkHttpUtil.doPost("http://192.168.43.240:8080/topic/quaryAllTopic",gson.toJson(topicQuery) ,new Callback(){
+        OkHttpUtil.doGet("http://192.168.43.240:8080/topic/quaryAllTopic",new Callback(){
             @Override
             public void onFailure(Call call, IOException e) {
                 handler.sendEmptyMessage(-1);
@@ -148,5 +134,11 @@ public class PublishActivity extends AppCompatActivity implements View.OnClickLi
                 }
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        init();
     }
 }

@@ -14,6 +14,7 @@ import android.widget.EditText;
 
 import com.hyphenate.EMMessageListener;
 import com.hyphenate.chat.EMClient;
+import com.hyphenate.chat.EMConversation;
 import com.hyphenate.chat.EMMessage;
 import com.xihua.wx.weixiao.R;
 
@@ -85,7 +86,12 @@ public class ChatActivity extends AppCompatActivity {
                 //收到消息
                 String result = messages.get(0).getBody().toString();
                 String msgReceived = result.substring(5, result.length() - 1);
-
+                EMConversation conversation = EMClient.getInstance().chatManager().getConversation("15196622412");
+                List<EMMessage> a = new ArrayList<>();
+                if (conversation!=null){
+                    List<EMMessage> ss = conversation.loadMoreMsgFromDB("1", 20);
+                    a = conversation.getAllMessages();
+                }
                 Log.i(TAG, "onMessageReceived: " + msgReceived);
                 final MSG msg = new MSG(msgReceived, MSG.TYPE_RECEIVED);
                 runOnUiThread(new Runnable() {
@@ -140,6 +146,13 @@ public class ChatActivity extends AppCompatActivity {
 
     private void initData() {
         mList = new ArrayList<>();
+
+        EMConversation conversation = EMClient.getInstance().chatManager().getConversation("15196622413");
+        List<EMMessage> a = new ArrayList<>();
+        if (conversation!=null){
+            List<EMMessage> messages = conversation.loadMoreMsgFromDB("15196622413", 20);
+            a = conversation.getAllMessages();
+        }
         mList.add(new MSG("日照香炉生紫烟，你与何人在聊天" , MSG.TYPE_SEND));
         mList.add(new MSG("黄河之水天上来，就是普通一女孩" , MSG.TYPE_RECEIVED));
         mList.add(new MSG("万水千山只等闲，微信闲扯这么甜" , MSG.TYPE_SEND));

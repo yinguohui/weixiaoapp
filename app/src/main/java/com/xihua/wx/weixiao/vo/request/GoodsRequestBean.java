@@ -1,4 +1,4 @@
-package com.xihua.wx.weixiao.bean;
+package com.xihua.wx.weixiao.vo.request;
 
 public class GoodsRequestBean {
     private String goodsName;
@@ -6,6 +6,7 @@ public class GoodsRequestBean {
     private String goodsDesciption;
     private Integer goodsUserNo;
     private String goodsPlace;
+    /*下期优化---商品类型*/
     private Integer goodsType;
 
     public Integer getGoodsUserNo() {

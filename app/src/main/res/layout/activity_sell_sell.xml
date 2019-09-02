@@ -41,9 +41,12 @@
             android:id="@+id/sell_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:gravity="center_vertical"
+            android:hint="请输入商品名称"
             android:textSize="16sp"
-            android:hint="请输入商品名称"/>
+            android:textColor="@color/bar_grey"
+            android:textColorHint="@color/bar_grey"
+            android:layout_margin="10dp" />
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -68,9 +71,12 @@
             android:id="@+id/sell_area"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:gravity="center_vertical"
+            android:hint="请输入地点"
             android:textSize="16sp"
-            android:hint="请输入地点"/>
+            android:textColor="@color/bar_grey"
+            android:textColorHint="@color/bar_grey"
+            android:layout_margin="10dp" />
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
@@ -86,10 +92,13 @@
                 android:id="@+id/sell_price"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:gravity="center_vertical"
+                android:hint="请输入商品价格"
                 android:textSize="16sp"
+                android:textColor="@color/bar_grey"
+                android:textColorHint="@color/bar_grey"
                 android:inputType="numberDecimal"
-                android:hint="请输入商品价格"/>
+                android:layout_margin="10dp" />
         </LinearLayout>
         <TextView
             android:layout_width="wrap_content"
@@ -102,6 +111,11 @@
             android:id="@+id/sell_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:hint="请输入商品价格"
+            android:textSize="16sp"
+            android:textColor="@color/bar_grey"
+            android:textColorHint="@color/bar_grey"
             android:layout_margin="10dp"
             android:lines="4"/>
         <Button

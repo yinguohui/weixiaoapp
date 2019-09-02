@@ -64,6 +64,9 @@ public class PublishContentActivity extends AppCompatActivity implements View.On
                 case 1:
                     ToastUtil.showToast(PublishContentActivity.this,"发布成功");
                     break;
+                case -1:
+                    ToastUtil.showToast(PublishContentActivity.this,"发布失败，请重试");
+                    break;
             }
         }
     };
@@ -119,6 +122,8 @@ public class PublishContentActivity extends AppCompatActivity implements View.On
                     if (apiResult.getCode()==200){
                         handler.sendEmptyMessage(1);
                         finish();
+                    }else {
+                        handler.sendEmptyMessage(-1);
                     }
                 }
             }

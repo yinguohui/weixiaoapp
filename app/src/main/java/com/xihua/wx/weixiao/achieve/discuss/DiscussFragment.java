@@ -39,6 +39,7 @@ import com.xihua.wx.weixiao.utils.RecyclerUtils;
 import com.xihua.wx.weixiao.utils.SpUtil;
 import com.xihua.wx.weixiao.utils.ToastUtil;
 import com.xihua.wx.weixiao.vo.response.ChatAllResponse;
+import com.xihua.wx.weixiao.vo.response.ChatAllUserResponse;
 import com.xihua.wx.weixiao.vo.response.TopicTimeLine;
 
 import java.io.IOException;
@@ -54,7 +55,7 @@ public class DiscussFragment extends BaseFragment implements RecyclerViewAdapter
     private RecyclerView recycler;              //在xml 中 RecyclerView 布局
     private RecyclerViewAdapter rvAdapter;      //item_recycler 布局的 适配器
     private Gson gson = new Gson();
-    private List<ChatAllResponse> list = new ArrayList<>();
+    private List<ChatAllUserResponse> list = new ArrayList<>();
     @Override
     public int getContentView() {
         return R.layout.fragment_discuss;
@@ -74,7 +75,7 @@ public class DiscussFragment extends BaseFragment implements RecyclerViewAdapter
     @Override
     public void onItemClick(View view, int position) {
         //在这里可以做出一些反应（跳转界面、弹出弹框之类）
-        Toast.makeText(getContext(),"点击了：" + position,Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getContext(),"点击了：" + position,Toast.LENGTH_SHORT).show();
     }
 
     //点击删除按钮时，根据传入的 position 调用 RecyclerAdapter 中的 removeData() 方法
@@ -91,7 +92,7 @@ public class DiscussFragment extends BaseFragment implements RecyclerViewAdapter
         }
         IdRequest idRequest = new IdRequest();
         idRequest.setId(Integer.parseInt(id));
-        OkHttpUtil.doPost("http://192.168.43.240:8080/chat/getallchatbyid",gson.toJson(idRequest) ,new Callback(){
+        OkHttpUtil.doPost("http://192.168.43.240:8080/chat/selectallchatuser",gson.toJson(idRequest) ,new Callback(){
             @Override
             public void onFailure(Call call, IOException e) {
                 handler.sendEmptyMessage(-1);
@@ -101,7 +102,7 @@ public class DiscussFragment extends BaseFragment implements RecyclerViewAdapter
                 if (response.isSuccessful()) {
                     ApiResult apiResult = gson.fromJson(response.body().string(),ApiResult.class);
                     if (apiResult.getCode()==200){
-                        list = gson.fromJson(gson.toJson(apiResult.getData()),new TypeToken<List<ChatAllResponse>>(){}.getType());
+                        list = gson.fromJson(gson.toJson(apiResult.getData()),new TypeToken<List<ChatAllUserResponse>>(){}.getType());
                         handler.sendEmptyMessage(1);
                     }else {
                         handler.sendEmptyMessage(0);

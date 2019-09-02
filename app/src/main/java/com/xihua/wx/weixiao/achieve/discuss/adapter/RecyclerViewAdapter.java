@@ -30,6 +30,7 @@ import com.xihua.wx.weixiao.utils.ToastUtil;
 import com.xihua.wx.weixiao.utils.VolleyUtils;
 import com.xihua.wx.weixiao.utils.image.CircleNetworkImageImage;
 import com.xihua.wx.weixiao.vo.response.ChatAllResponse;
+import com.xihua.wx.weixiao.vo.response.ChatAllUserResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class RecyclerViewAdapter
 
     private Context context;
 
-    private List<ChatAllResponse> list = new ArrayList<>();
+    private List<ChatAllUserResponse> list = new ArrayList<>();
 
     private onSlidingViewClickListener onSvcl;
 
@@ -61,7 +62,7 @@ public class RecyclerViewAdapter
     }
 
     public RecyclerViewAdapter(Context context,
-                               List<ChatAllResponse> list) {
+                               List<ChatAllUserResponse> list) {
         this.context = context;
         this.list = list;
     }
@@ -74,7 +75,7 @@ public class RecyclerViewAdapter
 
     @Override
     public void onBindViewHolder(final SimpleHolder holder, final int position) {
-        final ChatAllResponse response = list.get(position);
+        final ChatAllUserResponse response = list.get(position);
         if (null == response||null==response.getUser()){
             holder.re_layout.setVisibility(View.INVISIBLE);
             return;

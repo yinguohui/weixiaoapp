@@ -108,7 +108,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="20dp"
-                    android:text="我的主题"
+                    android:text="我的畅言"
                     android:textColor="@color/colorBig"
                     android:textSize="15sp" />
 

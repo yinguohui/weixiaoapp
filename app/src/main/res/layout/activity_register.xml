@@ -146,7 +146,6 @@
                 android:layout_height="35dp"
                 android:layout_width="30dp"
                 android:textSize="14sp"
-                android:background="@drawable/login_register_psw_edit_bg"
                 android:paddingRight="10dp"/>
             <TextView
                 android:id="@+id/xieyi"
