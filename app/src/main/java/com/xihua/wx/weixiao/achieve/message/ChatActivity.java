@@ -153,6 +153,8 @@ public class ChatActivity extends AppCompatActivity {
             List<EMMessage> messages = conversation.loadMoreMsgFromDB("15196622413", 20);
             a = conversation.getAllMessages();
         }
+
+
         mList.add(new MSG("日照香炉生紫烟，你与何人在聊天" , MSG.TYPE_SEND));
         mList.add(new MSG("黄河之水天上来，就是普通一女孩" , MSG.TYPE_RECEIVED));
         mList.add(new MSG("万水千山只等闲，微信闲扯这么甜" , MSG.TYPE_SEND));

@@ -65,14 +65,16 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder>{
                 holder.leftLayout.setVisibility(View.VISIBLE);
                 holder.rightLayout.setVisibility(View.GONE);
                 holder.leftMsg.setText(response.getChatContent());
-                holder.tv_nickname_recieve.setText(response.getUser().getUserName());
-                VolleyUtils.loadImage(context, holder.iv_avator_send,userimg);
+                if (null!=response.getUser()&&null!=response.getUser().getUserImg()){
+                    holder.tv_nickname_recieve.setText(response.getUser().getUserName());
+                    VolleyUtils.loadImage(context, holder.iv_avator_recieve,response.getUser().getUserImg());
+                }
+
             } else  {
                 holder.rightLayout.setVisibility(View.VISIBLE);
                 holder.leftLayout.setVisibility(View.GONE);
                 holder.rihgtMsg.setText(response.getChatContent());
-                VolleyUtils.loadImage(context, holder.iv_avator_recieve,response.getUser().getUserImg());
-
+                VolleyUtils.loadImage(context, holder.iv_avator_send,userimg);
             }
         }
 

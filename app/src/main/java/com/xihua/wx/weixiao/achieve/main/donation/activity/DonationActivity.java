@@ -57,8 +57,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class DonationActivity extends AppCompatActivity implements View.OnClickListener,View.OnTouchListener{
-    ImageView iv_back;
+public class DonationActivity extends AppCompatActivity implements View.OnClickListener{
     EditText et_donation_name,et_donation_num,et_donation_location,et_donation_time,et_donation_info;
     Button bt_donation_sure;
     DonationRequest request = new DonationRequest();
@@ -187,57 +186,59 @@ public class DonationActivity extends AppCompatActivity implements View.OnClickL
                     if (apiResult.getCode()==200){
                         handler.sendEmptyMessage(1);
                         finish();
+                    }else {
+                        handler.sendEmptyMessage(-1);
                     }
                 }
             }
         });
     }
 
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View view = View.inflate(this, R.layout.date_time_dialog, null);
-        final DatePicker datePicker =  view.findViewById(R.id.date_picker);
-        final TimePicker timePicker =  view.findViewById(R.id.time_picker);
-        builder.setView(view);
-
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(System.currentTimeMillis());
-        datePicker.init(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH), null);
-
-        timePicker.setIs24HourView(true);
-        timePicker.setCurrentHour(cal.get(Calendar.HOUR_OF_DAY));
-        timePicker.setCurrentMinute(Calendar.MINUTE);
-
-        final int inType = et_donation_time.getInputType();
-        et_donation_time.setInputType(InputType.TYPE_NULL);
-        et_donation_time.onTouchEvent(event);
-        et_donation_time.setInputType(inType);
-        et_donation_time.setSelection(et_donation_time.getText().length());
-
-            builder.setTitle("选取时间");
-            builder.setPositiveButton("确  定", new DialogInterface.OnClickListener() {
-
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-
-                    StringBuffer sb = new StringBuffer();
-                    sb.append(String.format("%d-%02d-%02d",
-                            datePicker.getYear(),
-                            datePicker.getMonth() + 1,
-                            datePicker.getDayOfMonth()));
-                    sb.append("  ");
-                    sb.append(timePicker.getCurrentHour())
-                            .append(":").append(timePicker.getCurrentMinute());
-
-                    et_donation_time.setText(sb);
-
-                    dialog.cancel();
-                }
-            });
-        Dialog dialog = builder.create();
-        dialog.show();
-
-        return true;
-    }
+//    @Override
+//    public boolean onTouch(View v, MotionEvent event) {
+//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//        View view = View.inflate(this, R.layout.date_time_dialog, null);
+//        final DatePicker datePicker =  view.findViewById(R.id.date_picker);
+//        final TimePicker timePicker =  view.findViewById(R.id.time_picker);
+//        builder.setView(view);
+//
+//        Calendar cal = Calendar.getInstance();
+//        cal.setTimeInMillis(System.currentTimeMillis());
+//        datePicker.init(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH), null);
+//
+//        timePicker.setIs24HourView(true);
+//        timePicker.setCurrentHour(cal.get(Calendar.HOUR_OF_DAY));
+//        timePicker.setCurrentMinute(Calendar.MINUTE);
+//
+//        final int inType = et_donation_time.getInputType();
+//        et_donation_time.setInputType(InputType.TYPE_NULL);
+//        et_donation_time.onTouchEvent(event);
+//        et_donation_time.setInputType(inType);
+//        et_donation_time.setSelection(et_donation_time.getText().length());
+//
+//            builder.setTitle("选取时间");
+//            builder.setPositiveButton("确  定", new DialogInterface.OnClickListener() {
+//
+//                @Override
+//                public void onClick(DialogInterface dialog, int which) {
+//
+//                    StringBuffer sb = new StringBuffer();
+//                    sb.append(String.format("%d-%02d-%02d",
+//                            datePicker.getYear(),
+//                            datePicker.getMonth() + 1,
+//                            datePicker.getDayOfMonth()));
+//                    sb.append("  ");
+//                    sb.append(timePicker.getCurrentHour())
+//                            .append(":").append(timePicker.getCurrentMinute());
+//
+//                    et_donation_time.setText(sb);
+//
+//                    dialog.cancel();
+//                }
+//            });
+//        Dialog dialog = builder.create();
+//        dialog.show();
+//
+//        return true;
+//    }
 }

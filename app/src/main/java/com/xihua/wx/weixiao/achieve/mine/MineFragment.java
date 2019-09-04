@@ -8,6 +8,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.hyphenate.chat.EMClient;
 import com.xihua.wx.weixiao.R;
 import com.xihua.wx.weixiao.achieve.base.view.BaseFragment;
 import com.xihua.wx.weixiao.achieve.login.activity.LoginActivity;
@@ -128,6 +129,7 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
                 startActivity(new Intent(getContext(), LoginActivity.class));
                 break;
             case R.id.rl_exit:
+                EMClient.getInstance().logout(true);
                 startActivity(new Intent(getContext(), LoginActivity.class));
                 break;
             case R.id.rl_aboutus:

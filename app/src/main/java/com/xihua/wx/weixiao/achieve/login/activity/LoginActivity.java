@@ -7,8 +7,11 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.hyphenate.EMCallBack;
+import com.hyphenate.chat.EMClient;
 import com.xihua.wx.weixiao.MainActivity;
 import com.xihua.wx.weixiao.R;
 import com.xihua.wx.weixiao.bean.ApiResult;
@@ -65,7 +68,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         et_phone = findViewById(R.id.et_phone);
         et_password = findViewById(R.id.et_password);
 
-        findViewById(R.id.iv_back).setOnClickListener(this);
         findViewById(R.id.tv_forget).setOnClickListener(this);
         findViewById(R.id.bt_login).setOnClickListener(this);
         findViewById(R.id.tv_register).setOnClickListener(this);
@@ -74,10 +76,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            // 退出
-            case R.id.iv_back:
-                finish();
-                break;
             // 点击登陆
             case R.id.bt_login:
                 if (VerificationUtils.judge(et_phone, et_password, LoginActivity.this))
@@ -120,6 +118,22 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         ApiResult<IdrResponse> userResult = gson.fromJson(data, ApiResult.class);
         UserResponse idrResponse =  gson.fromJson(gson.toJson(userResult.getData()),UserResponse.class);
         if (userResult.getCode()==200){
+            EMClient.getInstance().login("15196622412",et_password.getText().toString(),new EMCallBack() {//回调
+                @Override
+                public void onSuccess() {
+                    EMClient.getInstance().groupManager().loadAllGroups();
+                    EMClient.getInstance().chatManager().loadAllConversations();
+                }
+
+                @Override
+                public void onProgress(int progress, String status) {
+
+                }
+
+                @Override
+                public void onError(int code, String message) {
+                }
+            });
             handler.sendEmptyMessage(1);
             SpUtil.putString(LoginActivity.this, "userid", String.valueOf(idrResponse.getUserId()));
             SpUtil.putString(LoginActivity.this, "userimg", String.valueOf(idrResponse.getUserImg()));

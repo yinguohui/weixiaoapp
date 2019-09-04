@@ -26,6 +26,7 @@ import com.luck.picture.lib.permissions.RxPermissions;
 import com.luck.picture.lib.tools.PictureFileUtils;
 import com.xihua.wx.weixiao.R;
 import com.xihua.wx.weixiao.achieve.main.adapter.GridImageAdapter;
+import com.xihua.wx.weixiao.achieve.main.donation.activity.DonationActivity;
 import com.xihua.wx.weixiao.achieve.main.sell.SellBuyActivity;
 import com.xihua.wx.weixiao.achieve.main.sell.adapter.GoodsAdapter;
 import com.xihua.wx.weixiao.bean.ApiResult;
@@ -33,6 +34,7 @@ import com.xihua.wx.weixiao.bean.ErrorStatus;
 import com.xihua.wx.weixiao.bean.SuggestionRequest;
 import com.xihua.wx.weixiao.utils.MapUtil;
 import com.xihua.wx.weixiao.utils.OkHttpUtil;
+import com.xihua.wx.weixiao.utils.SpUtil;
 import com.xihua.wx.weixiao.utils.StringUtils;
 import com.xihua.wx.weixiao.utils.ToastUtil;
 
@@ -281,9 +283,14 @@ public class InfoActivity extends AppCompatActivity implements View.OnClickListe
             handler.sendEmptyMessage(0);
             return;
         }
+        String id = SpUtil.getString(InfoActivity.this, "userid", "-1");
+        if ("-1".equals(id)) {
+            ToastUtil.showToast(InfoActivity.this, "请登录");
+            return;
+        }
         suggestionRequest.setSuggestionContent(StringUtils.getEidtContent(et_info));
-        suggestionRequest.setSuggestionUserId(1551);
-        OkHttpUtil.uploadmany("http://192.168.43.240:8080/suggestion/add", MapUtil.objectToMap(suggestionRequest), stringList, new Callback() {
+        suggestionRequest.setSuggestionUserId(Integer.parseInt(id));
+        OkHttpUtil.uploadmany("http://192.168.43.240:8080/suggestion/add",MapUtil.objectToMap(suggestionRequest), stringList, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 handler.sendEmptyMessage(1);
@@ -299,6 +306,8 @@ public class InfoActivity extends AppCompatActivity implements View.OnClickListe
                         } else {
                             handler.sendEmptyMessage(2);
                         }
+                    }else {
+                        handler.sendEmptyMessage(2);
                     }
                 }
             }

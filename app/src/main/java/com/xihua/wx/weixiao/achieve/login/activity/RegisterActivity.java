@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -12,6 +14,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.exceptions.HyphenateException;
 import com.xihua.wx.weixiao.R;
 import com.xihua.wx.weixiao.bean.ApiResult;
 import com.xihua.wx.weixiao.utils.CheckCode;
@@ -153,6 +157,14 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         ApiResult apiResult = gson.fromJson(data,ApiResult.class);
         if (apiResult.getCode()==200){
             handler.sendEmptyMessage(1);
+            try{
+                String name = apiResult.getData().toString();
+                String password = newmima;
+                EMClient.getInstance().createAccount(name, password);
+            } catch (HyphenateException e) {
+                e.printStackTrace();
+            }
+
             finish();
         }
         else {

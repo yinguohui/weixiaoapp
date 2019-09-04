@@ -16,6 +16,7 @@ import com.xihua.wx.weixiao.bean.ApiResult;
 import com.xihua.wx.weixiao.utils.CheckCode;
 import com.xihua.wx.weixiao.utils.OkHttpUtil;
 import com.xihua.wx.weixiao.utils.ToastUtil;
+import com.xihua.wx.weixiao.utils.UpPwdUtil;
 import com.xihua.wx.weixiao.utils.VerificationUtils;
 import com.xihua.wx.weixiao.vo.request.LoginRequest;
 
@@ -148,6 +149,10 @@ public class ForgetActivity extends AppCompatActivity implements View.OnClickLis
     private void judgeResult(String result){
         ApiResult apiResult =gson.fromJson(result,ApiResult.class);
         if (apiResult.getCode()==200){
+
+            UpPwdUtil upPwdUtil = new UpPwdUtil();
+            upPwdUtil.updatePass("9",et_newpassword.getText().toString());
+
             finish();
             handler.sendEmptyMessage(1);
         }else {
